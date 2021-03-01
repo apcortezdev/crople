@@ -15,10 +15,14 @@ const Startup = (props) => {
     const tryLogin = async () => {
       if (SecureStore.isAvailableAsync()) {
         // SECURE STORE IS AVAILABLE IN DEVICE
-        dataFromStorage = await SecureStore.getItemAsync(config.STORAGE);
+        dataFromStorage = await SecureStore.getItemAsync(config.STORAGE).catch(
+          () => null
+        );
       } else {
         // SECURE STORE NOT AVAILABLE, USING GENERAL STORE
-        dataFromStorage = await AsyncStorage.getItem(config.STORAGE);
+        dataFromStorage = await AsyncStorage.getItem(config.STORAGE).catch(
+          () => null
+        );
       }
       if (!dataFromStorage) {
         // NO DATA STORED
