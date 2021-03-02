@@ -1,4 +1,11 @@
-import { STORAGE, API_SIGNUP, API_KEY, API_SIGNIN, API_REFRESH_TOKEN } from '@env';
+import {
+  STORAGE,
+  API_SIGNUP,
+  API_KEY,
+  API_SIGNIN,
+  API_REFRESH_TOKEN,
+  API_RESET_PASS,
+} from '@env';
 
 export default {
   STORAGE,
@@ -6,4 +13,5 @@ export default {
   API_SIGNIN,
   API_REFRESH_TOKEN,
   API_KEY,
+  API_RESET_PASS,
 };

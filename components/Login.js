@@ -166,7 +166,7 @@ const Login = (props) => {
                 <Text style={styles.text}>Remember me</Text>
               </TouchableWithoutFeedback>
             </View>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={props.onForgotPassword.bind(this, userEmail)}>
               <Text style={styles.text}>Forgot Password?</Text>
             </TouchableWithoutFeedback>
           </Animated.View>

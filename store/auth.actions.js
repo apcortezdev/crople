@@ -5,7 +5,13 @@ import config from '../config';
 export const AUTHENTICATE = 'AUTHENTICATE';
 export const LOGOUT = 'LOGOUT';
 
-export const signupOrLogin = (action, email, password, rememberMe, userName = null) => {
+export const signupOrLogin = (
+  action,
+  email,
+  password,
+  rememberMe,
+  userName = null
+) => {
   return async (dispatch) => {
     let endPoint;
     if (action === 'signup')
@@ -137,7 +143,7 @@ export const refreshTokenAndAuthenticate = (
     });
 
     if (!response.ok) {
-      throw new Error(errMessage);
+      throw new Error();
     }
 
     const resData = await response.json();
@@ -163,6 +169,27 @@ export const refreshTokenAndAuthenticate = (
         resData.refresh_token,
         'UserName'
       );
+    }
+  };
+};
+
+export const resetPassword = (userEmail) => {
+  return async (dispatch) => {
+    const endPointUrl = config.API_RESET_PASS.concat(config.API_KEY);
+
+    const response = await fetch(endPointUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requestType: 'PASSWORD_RESET',
+        email: userEmail,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error();
     }
   };
 };

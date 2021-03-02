@@ -76,13 +76,32 @@ const AuthScreen = (props) => {
 
   const logInHandler = async (userEmail, password, rememberMe) => {
     setIsLoadingLogin(true);
-    const action = authActions.signupOrLogin('login', userEmail, password, rememberMe);
+    const action = authActions.signupOrLogin(
+      'login',
+      userEmail,
+      password,
+      rememberMe
+    );
     try {
       await dispatch(action);
     } catch (err) {
-      Alert.alert('Wait a sec..', err.message, [{ text: 'Okay' }]);
+      Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
     }
     setIsLoadingLogin(false);
+  };
+
+  const resetPassword = async (userEmail) => {
+    if (!!!userEmail){
+      Alert.alert('Reset Password', 'Please enter a valid email', [{ text: 'Ok' }]);
+      return;
+    }
+    dispatch(authActions.resetPassword(userEmail)).then(() => {
+      Alert.alert('Reset Password', 'Please check your e-mail inbox for password reset!', [{ text: 'Ok' }]);
+    },
+    () => {
+      Alert.alert('Sorry', 'Your e-mail might be wrong or misspelled. Please try again!', [{ text: 'Ok' }]);
+    })
+
   };
 
   return (
@@ -104,14 +123,14 @@ const AuthScreen = (props) => {
         <>
           {isLoadingLogin ? (
             <View style={styles.activityIndicator}>
-              <ActivityIndicator
-                size="large"
-                color="white"
-                
-              />
+              <ActivityIndicator size="large" color="white" />
             </View>
           ) : (
-            <Login onSignUp={signUp} onLogIn={logInHandler} />
+            <Login
+              onSignUp={signUp}
+              onLogIn={logInHandler}
+              onForgotPassword={resetPassword}
+            />
           )}
         </>
       )}
