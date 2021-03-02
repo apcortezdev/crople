@@ -14,6 +14,7 @@ const MenuDrawer = (props) => {
   const dispatch = useDispatch();
 
   const signout = () => {
+    props.navigation.closeDrawer();
     dispatch(authActions.logout());
   };
 

@@ -5,7 +5,7 @@ import config from '../config';
 export const AUTHENTICATE = 'AUTHENTICATE';
 export const LOGOUT = 'LOGOUT';
 
-export const signupOrLogin = (action, email, password, rememberMe) => {
+export const signupOrLogin = (action, email, password, rememberMe, userName = null) => {
   return async (dispatch) => {
     let endPoint;
     if (action === 'signup')
@@ -46,7 +46,7 @@ export const signupOrLogin = (action, email, password, rememberMe) => {
         resData.idToken,
         resData.refreshToken,
         parseInt(resData.expiresIn) * 1000,
-        'UserName'
+        userName
       )
     );
     const expirationDate = new Date(
@@ -59,7 +59,7 @@ export const signupOrLogin = (action, email, password, rememberMe) => {
         resData.localId,
         expirationDate,
         resData.refreshToken,
-        'UserName'
+        userName
       );
   };
 };

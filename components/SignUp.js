@@ -17,10 +17,11 @@ import { useDispatch } from 'react-redux';
 import * as authActions from '../store/auth.actions';
 
 const SignUp = (props) => {
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState('MyName');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [termsAgreement, setTermsAgreement] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -210,14 +211,28 @@ const SignUp = (props) => {
   }, [error]);
 
   const signUpWithEmailHandler = async () => {
-    setIsLoading(true);
-    const action = authActions.signupOrLogin('signup', email, password);
-    try {
-      await dispatch(action);
-    } catch (err) {
-      setError(err.message);
+    if (termsAgreement) {
+      setIsLoading(true);
+      const action = authActions.signupOrLogin(
+        'signup',
+        email,
+        password,
+        rememberMe,
+        userName,
+      );
+      try {
+        await dispatch(action);
+      } catch (err) {
+        setError(err.message);
+      }
+      setIsLoading(false);
+    } else {
+      Alert.alert(
+        'Terms & Privacy Policy',
+        'You have to agree to the terms and privacy policy',
+        [{ text: 'Okay' }]
+      );
     }
-    setIsLoading(false);
   };
 
   return (
@@ -287,6 +302,22 @@ const SignUp = (props) => {
           >
             <View style={styles.checkBoxHolder}>
               <Checkbox
+                status={rememberMe ? 'checked' : 'unchecked'}
+                onPress={() => {
+                  setRememberMe(!rememberMe);
+                }}
+                color="#F63A65"
+              />
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setRememberMe(!rememberMe);
+                }}
+              >
+                <Text style={styles.text}>Remember me</Text>
+              </TouchableWithoutFeedback>
+            </View>
+            <View style={styles.checkBoxHolder}>
+              <Checkbox
                 status={termsAgreement ? 'checked' : 'unchecked'}
                 onPress={() => {
                   setTermsAgreement(!termsAgreement);
@@ -299,7 +330,7 @@ const SignUp = (props) => {
                 }}
               >
                 <Text style={styles.text}>
-                  I Agree to the terms and privacy policy
+                  I agree to the terms & privacy policy
                 </Text>
               </TouchableWithoutFeedback>
             </View>
@@ -405,7 +436,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   inputAgreementHolder: {
-    padding: 10,
+    alignItems: 'flex-start',
   },
   checkBoxHolder: {
     alignItems: 'center',
