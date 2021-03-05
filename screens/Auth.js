@@ -85,7 +85,7 @@ const AuthScreen = (props) => {
       rememberMe
     );
     try {
-      await dispatch(action);
+      dispatch(action);
     } catch (err) {
       Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
     }

@@ -21,7 +21,13 @@ export default (state = initialState, action) => {
     case SET_NEW_RECORD:
       return { ...state, highestScore: state.points };
     case AUTHENTICATE:
-      return { ...state, userName: action.userName, infoId: action.infoId, highestScore: action.highestScore };
+      return {
+        ...state,
+        infoId: action.infoId,
+        userName: action.userName,
+        points: 0,
+        highestScore: action.highestScore,
+      };
     case SET_POINTS:
       return { ...state, points: action.points };
     default:
