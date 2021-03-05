@@ -4,6 +4,7 @@ const initialState = {
   userId: null,
   userToken: null,
   refreshToken: null,
+  expirationToken: null,
   userName: null,
 };
 
@@ -14,6 +15,7 @@ export default (state = initialState, action) => {
         userToken: action.token,
         userId: action.userId,
         refreshToken: action.refreshToken,
+        expirationToken: action.expiresIn,
         userName: action.userName,
       };
     case LOGOUT:

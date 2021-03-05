@@ -5,6 +5,9 @@ import {
   API_SIGNIN,
   API_REFRESH_TOKEN,
   API_RESET_PASS,
+  API_USERS,
+  API_USERS_DPI,
+  API_USERS_DPA,
 } from '@env';
 
 export default {
@@ -14,4 +17,7 @@ export default {
   API_REFRESH_TOKEN,
   API_KEY,
   API_RESET_PASS,
+  API_USERS,
+  API_USERS_DPI,
+  API_USERS_DPA,
 };

@@ -1,15 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Avatar, Caption, Divider, Drawer, Title } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import * as authActions from '../store/auth.actions';
 
 const MenuDrawer = (props) => {
   const maxScore = useSelector((state) => state.game.maxPoints);
   const position = useSelector((state) => state.game.position);
+  const userName = useSelector((state) => state.auth.userName);
 
   const dispatch = useDispatch();
 
@@ -25,7 +25,7 @@ const MenuDrawer = (props) => {
           <View style={styles.userInfo}>
             <Avatar.Text size={80} label="XD" />
             <View style={styles.userTitle}>
-              <Title style={styles.title}>@mr.player01</Title>
+              <Title style={styles.title}>@{userName}</Title>
               <View style={styles.trophy}>
                 <Ionicons name="md-trophy-outline" size={14} color="black" />
                 <View style={{ paddingLeft: 5 }}>
@@ -37,7 +37,7 @@ const MenuDrawer = (props) => {
           <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (
-                <Ionicons name="md-podium" size={size} color={color} />
+                <FontAwesome5 name="flag-checkered" size={size} color={color} />
               )}
               label={position.toString()}
               labelStyle={styles.labelStyle}

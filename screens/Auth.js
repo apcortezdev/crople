@@ -21,6 +21,7 @@ const AuthScreen = (props) => {
 
   const dispatch = useDispatch();
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
+  const [isLoadingSignUp, setIsLoadingSignUp] = useState(false);
 
   const translateYGradient = useRef(new Animated.Value(0)).current;
   const translateYGradientAnimation = {
@@ -91,17 +92,59 @@ const AuthScreen = (props) => {
   };
 
   const resetPassword = async (userEmail) => {
-    if (!!!userEmail){
-      Alert.alert('Reset Password', 'Please enter a valid email', [{ text: 'Ok' }]);
+    if (!!!userEmail) {
+      Alert.alert('Reset Password', 'Please enter a valid email', [
+        { text: 'Ok' },
+      ]);
       return;
     }
-    dispatch(authActions.resetPassword(userEmail)).then(() => {
-      Alert.alert('Reset Password', 'Please check your e-mail inbox for password reset!', [{ text: 'Ok' }]);
-    },
-    () => {
-      Alert.alert('Sorry', 'Your e-mail might be wrong or misspelled. Please try again!', [{ text: 'Ok' }]);
-    })
+    dispatch(authActions.resetPassword(userEmail)).then(
+      () => {
+        Alert.alert(
+          'Reset Password',
+          'Please check your e-mail inbox for password reset!',
+          [{ text: 'Ok' }]
+        );
+      },
+      () => {
+        Alert.alert(
+          'Sorry',
+          'Your e-mail might be wrong or misspelled. Please try again!',
+          [{ text: 'Ok' }]
+        );
+      }
+    );
+  };
 
+  const signUpWithEmailHandler = async (
+    email,
+    password,
+    rememberMe,
+    userName,
+    termsAgreement
+  ) => {
+    if (termsAgreement) {
+      setIsLoadingSignUp(true);
+      const action = authActions.signupOrLogin(
+        'signup',
+        email,
+        password,
+        rememberMe,
+        userName
+      );
+      try {
+        await dispatch(action);
+      } catch (err) {
+        setError(err.message);
+      }
+      setIsLoadingSignUp(false);
+    } else {
+      Alert.alert(
+        'Terms & Privacy Policy',
+        'You have to agree to the terms and privacy policy',
+        [{ text: 'Okay' }]
+      );
+    }
   };
 
   return (
@@ -134,7 +177,20 @@ const AuthScreen = (props) => {
           )}
         </>
       )}
-      {isSignUp && <SignUp onPressBack={backToLogIn} />}
+      {isSignUp && (
+        <>
+          {isLoadingSignUp ? (
+            <View style={styles.activityIndicator}>
+              <ActivityIndicator size="large" color="#F63A65" />
+            </View>
+          ) : (
+            <SignUp
+              onPressBack={backToLogIn}
+              onSignUpWithEmail={signUpWithEmailHandler}
+            />
+          )}
+        </>
+      )}
     </View>
   );
 };

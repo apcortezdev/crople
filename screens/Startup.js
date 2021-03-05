@@ -1,31 +1,21 @@
-import { Alert, StyleSheet, Text } from 'react-native';
-import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as authActions from '../store/auth.actions';
+import * as SecureStore from 'expo-secure-store';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import config from '../config';
+import * as authActions from '../store/auth.actions';
 
 const Startup = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    let dataFromStorage;
     const tryLogin = async () => {
-      if (SecureStore.isAvailableAsync()) {
-        // SECURE STORE IS AVAILABLE IN DEVICE
-        dataFromStorage = await SecureStore.getItemAsync(config.STORAGE).catch(
-          () => null
-        );
-      } else {
-        // SECURE STORE NOT AVAILABLE, USING GENERAL STORE
-        dataFromStorage = await AsyncStorage.getItem(config.STORAGE).catch(
-          () => null
-        );
-      }
+      const dataFromStorage = SecureStore.isAvailableAsync()
+        ? await SecureStore.getItemAsync(config.STORAGE)
+        : await AsyncStorage.getItem(config.STORAGE);
+
       if (!dataFromStorage) {
-        // NO DATA STORED
         props.navigation.navigate('Auth');
         return;
       }
@@ -40,7 +30,7 @@ const Startup = (props) => {
         // TOKEN INVALID
         dispatch(
           authActions.refreshTokenAndAuthenticate(userData.refreshToken, true)
-        ).catch((err) => {
+        ).catch(() => {
           // ERROR WHEN REFRESHING
           dispatch(authActions.logout());
           props.navigation.navigate('Auth');
@@ -54,6 +44,7 @@ const Startup = (props) => {
           userData.userId,
           userData.token,
           userData.refreshToken,
+          new Date(userData.expiryDate),
           userData.userName
         )
       );

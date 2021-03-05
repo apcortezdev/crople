@@ -1,3 +1,4 @@
+import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -7,24 +8,17 @@ import {
   Text,
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
-import { Avatar, Badge, Checkbox, TextInput } from 'react-native-paper';
-import { MaterialIcons } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
-import * as authActions from '../store/auth.actions';
+import { Avatar, Checkbox, TextInput } from 'react-native-paper';
 
 const SignUp = (props) => {
-  const [userName, setUserName] = useState('MyName');
+  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [termsAgreement, setTermsAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
   const opacityAvatar = useRef(new Animated.Value(0)).current;
@@ -210,31 +204,6 @@ const SignUp = (props) => {
     }
   }, [error]);
 
-  const signUpWithEmailHandler = async () => {
-    if (termsAgreement) {
-      setIsLoading(true);
-      const action = authActions.signupOrLogin(
-        'signup',
-        email,
-        password,
-        rememberMe,
-        userName,
-      );
-      try {
-        await dispatch(action);
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsLoading(false);
-    } else {
-      Alert.alert(
-        'Terms & Privacy Policy',
-        'You have to agree to the terms and privacy policy',
-        [{ text: 'Okay' }]
-      );
-    }
-  };
-
   return (
     <View style={styles.screen}>
       <View style={styles.formHolder}>
@@ -336,7 +305,16 @@ const SignUp = (props) => {
             </View>
           </Animated.View>
           <Animated.View style={[styles.inputHolder, signUpButtonAnimation]}>
-            <TouchableNativeFeedback onPress={signUpWithEmailHandler}>
+            <TouchableNativeFeedback
+              onPress={props.onSignUpWithEmail.bind(
+                this,
+                email,
+                password,
+                rememberMe,
+                userName,
+                termsAgreement
+              )}
+            >
               <View style={styles.buttonSignUp}>
                 <Text style={styles.textButton}>Sign up</Text>
               </View>
