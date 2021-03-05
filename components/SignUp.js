@@ -19,8 +19,6 @@ const SignUp = (props) => {
   const [termsAgreement, setTermsAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  const [error, setError] = useState();
-
   const opacityAvatar = useRef(new Animated.Value(0)).current;
   const translateYAvatar = useRef(new Animated.Value(-8)).current;
   const avatarAnimation = {
@@ -197,12 +195,6 @@ const SignUp = (props) => {
   useEffect(() => {
     formAnimation.start();
   }, []);
-
-  useEffect(() => {
-    if (error) {
-      Alert.alert('Wait a sec..', error, [{ text: 'Okay' }]);
-    }
-  }, [error]);
 
   return (
     <View style={styles.screen}>

@@ -7,9 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as authActions from '../store/auth.actions';
 
 const MenuDrawer = (props) => {
-  const maxScore = useSelector((state) => state.game.maxPoints);
+  const highestScore = useSelector((state) => state.game.highestScore);
   const position = useSelector((state) => state.game.position);
-  const userName = useSelector((state) => state.auth.userName);
+  const userName = useSelector((state) => state.game.userName);
 
   const dispatch = useDispatch();
 
@@ -29,7 +29,7 @@ const MenuDrawer = (props) => {
               <View style={styles.trophy}>
                 <Ionicons name="md-trophy-outline" size={14} color="black" />
                 <View style={{ paddingLeft: 5 }}>
-                  <Caption styles={styles.labelStyle}>{maxScore}</Caption>
+                  <Caption styles={styles.labelStyle}>{highestScore}</Caption>
                 </View>
               </View>
             </View>
@@ -38,8 +38,8 @@ const MenuDrawer = (props) => {
             <DrawerItem
               icon={({ color, size }) => (
                 <FontAwesome5 name="flag-checkered" size={size} color={color} />
-              )}
-              label={position.toString()}
+              )}              
+              label ={position === 0 ? '\u221E' : position.toString()}
               labelStyle={styles.labelStyle}
               onPress={() => {
                 props.navigation.navigate('Ranking');

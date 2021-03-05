@@ -1,18 +1,16 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
-  Button,
   Dimensions,
   Easing,
   StyleSheet,
   Text,
-  TouchableNativeFeedback,
   TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { addPoints, setPoints } from '../store/crople.actions';
-import { LinearGradient } from 'expo-linear-gradient';
+import * as cropleActions from '../store/crople.actions';
 
 const Board = (props) => {
   const dispatch = useDispatch();
@@ -101,7 +99,7 @@ const Board = (props) => {
       bladeBorderWidth.setValue(1);
       if (listenedBladeScaleValue <= currentRemainderScale) {
         setRunTime(runTime * 0.9);
-        dispatch(addPoints(1));
+        dispatch(cropleActions.addPoints());
         setNewBack(currentRemainderScale);
         setCurrentRemainderScale(listenedBladeScaleValue);
         scaleRemainder.setValue(listenedBladeScaleValue);
@@ -118,7 +116,7 @@ const Board = (props) => {
 
   const startGame = () => {
     setIsStartButton(false);
-    dispatch(setPoints(0));
+    dispatch(cropleActions.setPoints(0));
     counterOpacity.setValue(1);
     counterGo.start(() => {
       setCounterText('1');
@@ -146,6 +144,7 @@ const Board = (props) => {
     resetBlade.start();
     setCurrentRemainderScale(1);
     resetRemainder(1).start(setIsStartButton(true));
+    dispatch(cropleActions.checkNewRecord());
   };
 
   useEffect(() => {

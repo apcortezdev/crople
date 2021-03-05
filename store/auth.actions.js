@@ -1,9 +1,7 @@
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import config from '../config';
-
-export const AUTHENTICATE = 'AUTHENTICATE';
-export const LOGOUT = 'LOGOUT';
+import { AUTHENTICATE, LOGOUT } from './actionConstants';
 
 export const signupOrLogin = (
   // SIGN UP OR LOGIN IN FIREBASE AUTHENTICATION WITH EMAIL AND PASSWORD
@@ -48,10 +46,12 @@ export const signupOrLogin = (
 
     const resData = await response.json();
 
+    let infoId;
+    let highestScore = 0;
     if (action === 'signup') {
       // IF IS NEW USER, USER DETAILS HAVE TO BE SAVED
       try {
-        await dispatch(
+        infoId = await dispatch(
           saveNewUserData(resData.idToken, resData.localId, userName)
         );
       } catch (err) {
@@ -62,7 +62,9 @@ export const signupOrLogin = (
         const userInfo = await dispatch(
           fetchUserData(resData.idToken, resData.localId)
         );
+        infoId = Object.keys(userInfo)[0];
         userName = userInfo[Object.keys(userInfo)[0]].userName;
+        highestScore = userInfo[Object.keys(userInfo)[0]].highestScore;
       } catch (err) {
         userName = 'NoConnection';
         console.log(err.message);
@@ -81,7 +83,9 @@ export const signupOrLogin = (
         resData.idToken,
         resData.refreshToken,
         expirationDate,
-        userName
+        infoId,
+        userName,
+        highestScore
       )
     );
 
@@ -92,7 +96,9 @@ export const signupOrLogin = (
         resData.idToken,
         resData.refreshToken,
         expirationDate,
-        userName
+        infoId,
+        userName,
+        highestScore
       );
     }
   };
@@ -118,6 +124,8 @@ export const saveNewUserData = (token, userId, userName, userImage = null) => {
 
     if (!response.ok) {
       throw new Error('Failed to save new user');
+    } else {
+      return await response.json().name;
     }
   };
 };
@@ -151,7 +159,9 @@ export const authenticate = (
   token,
   refreshToken,
   expiresIn,
-  userName
+  infoId,
+  userName,
+  highestScore
 ) => {
   // SAVE USER INFO TO REDUX
   return (dispatch) => {
@@ -161,7 +171,9 @@ export const authenticate = (
       token: token,
       refreshToken: refreshToken,
       expiresIn: expiresIn,
+      infoId: infoId,
       userName: userName,
+      highestScore: highestScore,
     });
   };
 };
@@ -182,7 +194,9 @@ const saveDataToStorage = async (
   token,
   refreshToken,
   expirationDate,
-  userName
+  infoId,
+  userName,
+  highestScore
 ) => {
   if (SecureStore.isAvailableAsync()) {
     // ID SECURE CRIPTOGRAPHY AVAILABLE
@@ -193,7 +207,9 @@ const saveDataToStorage = async (
         expiryDate: expirationDate.toISOString(),
         refreshToken: refreshToken,
         userId: userId,
+        infoId: infoId,
         userName: userName,
+        highestScore: highestScore,
       })
     );
   } else {
@@ -204,18 +220,17 @@ const saveDataToStorage = async (
         expiryDate: expirationDate.toISOString(),
         refreshToken: refreshToken,
         userId: userId,
+        infoId: infoId,
         userName: userName,
+        highestScore: highestScore,
       })
     );
   }
 };
 
-export const refreshTokenAndAuthenticate = (
-  // EXCHANGE REFRESH TOKEN FOR NEW ID TOKEN AND SAVE NEW TOKEN TO REDUX AND DEVICE STORAGE
-  refreshToken,
-  rememberMe = false
-) => {
-  return async (dispatch) => {
+const refreshTokenForId = (refreshToken) => {
+  // EXCHANGE REFRESH TOKEN FOR NEW ID TOKEN
+  return async () => {
     const endpointUrl = config.API_REFRESH_TOKEN.concat(config.API_KEY);
     const body = new URLSearchParams();
     body.append('grant_type', 'refresh_token');
@@ -234,7 +249,59 @@ export const refreshTokenAndAuthenticate = (
       throw new Error();
     }
 
-    const resData = await response.json();
+    return await response.json();
+  };
+};
+
+export const refreshAndSaveToken = (refreshToken) => {
+  // THIS WILL FETCH AND SAVE A NEW TOKEN TO REDUX AND THE STORAGE, WITHOUT FETCHING USER DATA
+  return async (dispatch, getState) => {
+    const resData = await dispatch(refreshTokenForId(refreshToken));
+
+    const expirationDate = new Date(
+      // TURNS EXPIRATION TIME (MILISECONDS) INTO A DATE FOR FUTURE COMPARISON
+      new Date().getTime() + parseInt(resData.expires_in) * 1000
+    );
+
+    const infoId = getState().game.infoId
+    const userName = getState().game.userName
+    const highestScore = getState().game.highestScore
+
+    dispatch(
+      // SAVE NEW TOKEN TO REDUX
+      authenticate(
+        resData.user_id,
+        resData.id_token,
+        resData.refresh_token,
+        expirationDate,
+        infoId,
+        userName,
+        highestScore
+      )
+    );
+
+    if (rememberMe) {
+      // IF UPDATE DATA IN DEVICE STORAGE
+      saveDataToStorage(
+        resData.user_id,
+        resData.id_token,
+        resData.refresh_token,
+        expirationDate,
+        infoId,
+        userName,
+        highestScore
+      );
+    }
+  };
+};
+
+export const refreshTokenAndAuthenticate = (
+  // THIS WILL FETCH AND SAVE A NEW TOKEN TO REDUX AND THE STORAGE AND FETCH USER DATA FOR LOGIN
+  refreshToken,
+  rememberMe = false
+) => {
+  return async (dispatch) => {
+    const resData = await dispatch(refreshTokenForId(refreshToken));
 
     const expirationDate = new Date(
       // TURNS EXPIRATION TIME (MILISECONDS) INTO A DATE FOR FUTURE COMPARISON
@@ -259,7 +326,9 @@ export const refreshTokenAndAuthenticate = (
         resData.id_token,
         resData.refresh_token,
         expirationDate,
-        userInfo[Object.keys(userInfo)[0]].userName
+        Object.keys(userInfo)[0], // GETS PROP NAME (THIS NAME IS THE INFO ID)
+        userInfo[Object.keys(userInfo)[0]].userName,
+        userInfo[Object.keys(userInfo)[0]].highestScore
       )
     );
 
@@ -270,7 +339,9 @@ export const refreshTokenAndAuthenticate = (
         resData.id_token,
         resData.refresh_token,
         expirationDate,
-        userInfo[Object.keys(userInfo)[0]].userName
+        Object.keys(userInfo)[0],
+        userInfo[Object.keys(userInfo)[0]].userName,
+        userInfo[Object.keys(userInfo)[0]].highestScore
       );
     }
   };

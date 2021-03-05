@@ -28,6 +28,7 @@ const Startup = (props) => {
         return;
       } else if (new Date(userData.expiryDate) <= new Date()) {
         // TOKEN INVALID
+        
         dispatch(
           authActions.refreshTokenAndAuthenticate(userData.refreshToken, true)
         ).catch(() => {
@@ -45,7 +46,9 @@ const Startup = (props) => {
           userData.token,
           userData.refreshToken,
           new Date(userData.expiryDate),
-          userData.userName
+          userData.infoId,
+          userData.userName,
+          userData.highestScore
         )
       );
     };

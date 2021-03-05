@@ -18,6 +18,7 @@ import { useDispatch } from 'react-redux';
 const AuthScreen = (props) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
+  const [error, setError] = useState();
 
   const dispatch = useDispatch();
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
@@ -135,6 +136,7 @@ const AuthScreen = (props) => {
       try {
         await dispatch(action);
       } catch (err) {
+        // REVIEW THISSSSSS
         setError(err.message);
       }
       setIsLoadingSignUp(false);
