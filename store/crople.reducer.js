@@ -10,7 +10,7 @@ const initialState = {
   userName: null,
   points: 0,
   highestScore: 0,
-  position: 0,
+  position: 7,
 };
 
 export default (state = initialState, action) => {

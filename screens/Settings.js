@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import MenuSettings from '../components/MenuSettings';
+import React, { useState } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import {
   Divider,
   Switch,
   TextInput,
-  Title,
-  TouchableRipple,
+  Title
 } from 'react-native-paper';
+import MenuReturn from '../components/MenuReturn';
 
 const Settings = (props) => {
   const [userName, setUserName] = useState('');
@@ -23,7 +22,7 @@ const Settings = (props) => {
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.menuScreen}>
-            <MenuSettings
+            <MenuReturn
               onPressMenu={() => {
                 props.navigation.openDrawer();
               }}
