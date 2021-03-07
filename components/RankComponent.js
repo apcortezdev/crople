@@ -1,9 +1,17 @@
-import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import { Avatar, Title } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Avatar } from 'react-native-paper';
 
 const RankComponent = (props) => {
+  let userName = null;
+  let score = null;
+
+  if (!!props.player) {
+    userName = props.player[Object.keys(props.player)[0]].userName;
+    score = props.player[Object.keys(props.player)[0]].highestScore;
+  }
+
   let trophyColor;
   let trophy;
   let bgColor;
@@ -28,7 +36,11 @@ const RankComponent = (props) => {
     default:
       trophy = 'md-trophy-outline';
       trophyColor = 'black';
-      props.isStandOut ? (bgColor = '#FEEDE7') : (bgColor = '#FAFAFA');
+      props.isHeader
+        ? (bgColor = 'transparent')
+        : props.isStandOut
+        ? (bgColor = '#FEEDE7')
+        : (bgColor = '#FAFAFA');
       break;
   }
   return (
@@ -41,14 +53,12 @@ const RankComponent = (props) => {
             <View style={styles.avatarContainer}>
               <Avatar.Text size={35} label="XD" />
             </View>
-            <Text style={styles.text}>qwertyuiopas</Text>
+            <Text style={styles.text}>{userName}</Text>
           </View>
         )}
       </View>
       <View style={styles.scoreColumn}>
-        <Text style={styles.text}>
-          {props.isHeader ? 'Score' : props.position}
-        </Text>
+        <Text style={styles.text}>{props.isHeader ? 'Score' : score}</Text>
       </View>
       <View style={styles.rankColumn}>
         <Text style={styles.text}>

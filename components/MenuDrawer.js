@@ -1,4 +1,9 @@
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+  FontAwesome5,
+  Ionicons,
+  AntDesign,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -8,7 +13,7 @@ import * as authActions from '../store/auth.actions';
 
 const MenuDrawer = (props) => {
   const highestScore = useSelector((state) => state.game.highestScore);
-  const position = useSelector((state) => state.game.position);
+  const position = useSelector((state) => state.rank.position);
   const userName = useSelector((state) => state.game.userName);
 
   const dispatch = useDispatch();
@@ -18,18 +23,54 @@ const MenuDrawer = (props) => {
     dispatch(authActions.logout());
   };
 
+  let trophyIcon;
+  let trophyColor;
+
+  switch (position) {
+    case 1:
+      trophyIcon = 'md-trophy';
+      trophyColor = '#FFD700';
+      break;
+    case 2:
+      trophyIcon = 'md-trophy';
+      trophyColor = '#C0C0C0';
+      break;
+    case 3:
+    case 4:
+    case 5:
+      trophyIcon = 'md-trophy';
+      trophyColor = '#CD7F32';
+      break;
+    default:
+      trophyIcon = 'md-trophy-outline';
+      trophyColor = '#737373';
+      break;
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContent}>
           <View style={styles.userInfo}>
-            <Avatar.Text size={80} label="XD" />
+            {/* <Avatar.Text size={80} label="XD" /> */}
+
+            <Avatar.Icon
+              size={80}
+              icon={() => <AntDesign name="user" size={50} color="white" />}
+              theme={{
+                colors: { primary: '#F63A65' },
+              }}
+            />
             <View style={styles.userTitle}>
               <Title style={styles.title}>@{userName}</Title>
               <View style={styles.trophy}>
-                <Ionicons name="md-trophy-outline" size={14} color="black" />
+                <Ionicons name={trophyIcon} size={14} color={trophyColor} />
                 <View style={{ paddingLeft: 5 }}>
-                  <Caption styles={styles.labelStyle}>{highestScore}</Caption>
+                  <Caption styles={styles.labelStyle}>
+                    {position <= 0
+                      ? '\u221E'
+                      : position.toString().concat('#')}
+                  </Caption>
                 </View>
               </View>
             </View>
@@ -38,8 +79,8 @@ const MenuDrawer = (props) => {
             <DrawerItem
               icon={({ color, size }) => (
                 <FontAwesome5 name="flag-checkered" size={size} color={color} />
-              )}              
-              label ={position === 0 ? '\u221E' : position.toString()}
+              )}
+              label={'Your record: '.concat(highestScore.toString())}
               labelStyle={styles.labelStyle}
               onPress={() => {
                 props.navigation.navigate('Ranking');

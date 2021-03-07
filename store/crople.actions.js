@@ -1,7 +1,11 @@
 import { Alert } from 'react-native';
 import config from '../config';
 import { ADD_POINT, SET_NEW_RECORD, SET_POINTS } from './actionConstants';
-import { refreshAndSaveToken } from './auth.actions';
+import {
+  refreshAndSaveToken,
+  checkStorage,
+  saveDataToStorage,
+} from './auth.actions';
 
 export const addPoints = () => {
   return { type: ADD_POINT };
@@ -19,7 +23,7 @@ export const checkNewRecord = () => {
       // SAVE RECORD TO RESUX
       Alert.alert('Wow', 'New Record!', [{ text: 'Ok' }]);
 
-      dispatch(setNewRecord());
+      dispatch(setNewRecord(points));
 
       // REFRESH TOKEN IF NEEDED
       if (new Date(getState().auth.expirationToken) <= new Date()) {
@@ -52,6 +56,24 @@ export const checkNewRecord = () => {
   };
 };
 
-export const setNewRecord = () => {
-  return { type: SET_NEW_RECORD };
+export const setNewRecord = (newRecord) => {
+  return async (dispatch) => {
+    const storage = await dispatch(checkStorage());
+
+    if (storage) {
+      dispatch(
+        saveDataToStorage(
+          storage.userId,
+          storage.token,
+          storage.refreshToken,
+          storage.expiryDate,
+          storage.infoId,
+          storage.userName,
+          newRecord
+        )
+      );
+    }
+
+    dispatch({ type: SET_NEW_RECORD });
+  };
 };

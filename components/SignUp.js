@@ -1,7 +1,6 @@
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Animated,
   Dimensions,
   StyleSheet,

@@ -1,20 +1,31 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { Caption } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 import MenuReturn from '../components/MenuReturn';
 import RankComponent from '../components/RankComponent';
+import * as rankActions from '../store/rank.actions';
 
 const Ranking = (props) => {
   const [isRefreshing, setIsRegreshing] = useState(false);
-
-  const position = useSelector((state) => state.game.position);
   const rank = useSelector((state) => state.rank.rank);
+  const position = useSelector((state) => state.rank.position);
 
-  const loadRanks = () => {
+  const dispatch = useDispatch();
+
+  const loadRanks = async () => {
     setIsRegreshing(true);
+    dispatch(rankActions.fetchRanks());
     setIsRegreshing(false);
   };
+
+  useEffect(() => {
+    setIsRegreshing(true);
+    loadRanks().then(() => {
+      setIsRegreshing(false);
+    });
+  }, []);
 
   return (
     <View style={styles.screen}>
@@ -37,7 +48,7 @@ const Ranking = (props) => {
       <View style={styles.rankingContainer}>
         <View style={styles.rankingPage}>
           <View style={styles.listTitle}>
-            <Text style={styles.text}>This is the top 100 list</Text>
+            <Text style={styles.text}>This is the top {rank.length} list</Text>
             <View>
               {position === 0 ? (
                 <Text style={styles.text}>But you are not on it yet!</Text>
@@ -50,27 +61,34 @@ const Ranking = (props) => {
           </View>
           <View style={styles.rankingList}>
             <RankComponent isHeader={true} />
-            <FlatList
-              onRefresh={loadRanks} // Pull to Refresh effect
-              refreshing={isRefreshing} // Pull to Refresh effect
-              keyExtractor={(item, index) => index.toString()}
-              data={rank}
-              renderItem={({ item, index }) =>
-                index + 1 === position ? (
-                  <RankComponent
-                    position={index + 1}
-                    isStandOut={true}
-                    player={null}
-                  />
-                ) : (
-                  <RankComponent
-                    position={index + 1}
-                    isStandOut={false}
-                    player={null}
-                  />
-                )
-              }
-            />
+            {rank.length > 0 ? (
+              <FlatList
+                onRefresh={loadRanks} // Pull to Refresh effect
+                refreshing={isRefreshing} // Pull to Refresh effect
+                keyExtractor={(item) => Object.keys(item)[0]}
+                data={rank}
+                renderItem={({ item, index }) =>
+                  index + 1 === position ? (
+                    <RankComponent
+                      position={index + 1}
+                      isStandOut={true}
+                      player={item}
+                    />
+                  ) : (
+                    <RankComponent
+                      position={index + 1}
+                      isStandOut={false}
+                      player={item}
+                    />
+                  )
+                }
+              />
+            ) : (
+              <View style={styles.enptyList}>
+                <Caption>The internet is broken! Run to the hills!!</Caption>
+                <Caption>Or just try again later...</Caption>
+              </View>
+            )}
           </View>
         </View>
       </View>
@@ -128,6 +146,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     width: '100%',
+  },
+  enptyList: {
+    top: '15%',
+    alignItems: 'center',
   },
 });
 

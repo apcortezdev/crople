@@ -1,11 +1,18 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Points from '../components/ScoreBoard';
 import Board from '../components/GameBoard';
 import MenuBase from '../components/MenuBase';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useDispatch } from 'react-redux';
+import { fetchRanks } from '../store/rank.actions';
 
 const Crople = (props) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchRanks());
+  }, []);
 
   return (
     <View style={styles.fullscreen}>

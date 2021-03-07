@@ -55,7 +55,7 @@ export const signupOrLogin = (
           saveNewUserData(resData.idToken, resData.localId, userName)
         );
       } catch (err) {
-        console.log(err.message);
+        throw new Error(err.message);
       }
     } else if (action === 'login') {
       try {
@@ -66,8 +66,7 @@ export const signupOrLogin = (
         userName = userInfo[Object.keys(userInfo)[0]].userName;
         highestScore = userInfo[Object.keys(userInfo)[0]].highestScore;
       } catch (err) {
-        userName = 'NoConnection';
-        console.log(err.message);
+        throw new Error(err.message);
       }
     }
 
@@ -91,14 +90,16 @@ export const signupOrLogin = (
 
     if (rememberMe) {
       // SAVE USER INFO TO DEVICE STORAGE IF REMEMBER-ME OPTION IS ON
-      saveDataToStorage(
-        resData.localId,
-        resData.idToken,
-        resData.refreshToken,
-        expirationDate,
-        infoId,
-        userName,
-        highestScore
+      dispatch(
+        saveDataToStorage(
+          resData.localId,
+          resData.idToken,
+          resData.refreshToken,
+          expirationDate,
+          infoId,
+          userName,
+          highestScore
+        )
       );
     }
   };
@@ -118,14 +119,15 @@ export const saveNewUserData = (token, userId, userName, userImage = null) => {
         userId,
         userName,
         userImage,
-        highestScore: '0',
+        highestScore: 0,
       }),
     });
 
     if (!response.ok) {
       throw new Error('Failed to save new user');
     } else {
-      return await response.json().name;
+      const infoId = await response.json();
+      return infoId.name;
     }
   };
 };
@@ -188,7 +190,7 @@ export const logout = () => {
   return { type: LOGOUT };
 };
 
-const saveDataToStorage = async (
+export const saveDataToStorage = (
   // SAVE USER INFO TO DEVICE STORAGE FOR REMEMBER-ME FUNCTION
   userId,
   token,
@@ -198,34 +200,42 @@ const saveDataToStorage = async (
   userName,
   highestScore
 ) => {
-  if (SecureStore.isAvailableAsync()) {
-    // ID SECURE CRIPTOGRAPHY AVAILABLE
-    await SecureStore.setItemAsync(
-      config.STORAGE,
-      JSON.stringify({
-        token: token,
-        expiryDate: expirationDate.toISOString(),
-        refreshToken: refreshToken,
-        userId: userId,
-        infoId: infoId,
-        userName: userName,
-        highestScore: highestScore,
-      })
-    );
-  } else {
-    await AsyncStorage.setItem(
-      config.STORAGE,
-      JSON.stringify({
-        token: token,
-        expiryDate: expirationDate.toISOString(),
-        refreshToken: refreshToken,
-        userId: userId,
-        infoId: infoId,
-        userName: userName,
-        highestScore: highestScore,
-      })
-    );
-  }
+  return async () => {
+    if (SecureStore.isAvailableAsync()) {
+      // ID SECURE CRIPTOGRAPHY AVAILABLE
+      await SecureStore.setItemAsync(
+        config.STORAGE,
+        JSON.stringify({
+          token: token,
+          expiryDate:
+            typeof expirationDate === 'object'
+              ? expirationDate.toISOString()
+              : expirationDate,
+          refreshToken: refreshToken,
+          userId: userId,
+          infoId: infoId,
+          userName: userName,
+          highestScore: highestScore,
+        })
+      );
+    } else {
+      await AsyncStorage.setItem(
+        config.STORAGE,
+        JSON.stringify({
+          token: token,
+          expiryDate:
+            typeof expirationDate === 'object'
+              ? expirationDate.toISOString()
+              : expirationDate,
+          refreshToken: refreshToken,
+          userId: userId,
+          infoId: infoId,
+          userName: userName,
+          highestScore: highestScore,
+        })
+      );
+    }
+  };
 };
 
 const refreshTokenForId = (refreshToken) => {
@@ -253,19 +263,34 @@ const refreshTokenForId = (refreshToken) => {
   };
 };
 
+export const checkStorage = () => {
+  return async () => {
+    const dataFromStorage = SecureStore.isAvailableAsync()
+      ? await SecureStore.getItemAsync(config.STORAGE)
+      : await AsyncStorage.getItem(config.STORAGE);
+
+    if (!dataFromStorage) {
+      return false;
+    }
+    return await JSON.parse(dataFromStorage);
+  };
+};
+
 export const refreshAndSaveToken = (refreshToken) => {
   // THIS WILL FETCH AND SAVE A NEW TOKEN TO REDUX AND THE STORAGE, WITHOUT FETCHING USER DATA
   return async (dispatch, getState) => {
     const resData = await dispatch(refreshTokenForId(refreshToken));
+
+    const rememberMe = await dispatch(checkStorage());
 
     const expirationDate = new Date(
       // TURNS EXPIRATION TIME (MILISECONDS) INTO A DATE FOR FUTURE COMPARISON
       new Date().getTime() + parseInt(resData.expires_in) * 1000
     );
 
-    const infoId = getState().game.infoId
-    const userName = getState().game.userName
-    const highestScore = getState().game.highestScore
+    const infoId = getState().game.infoId;
+    const userName = getState().game.userName;
+    const highestScore = getState().game.highestScore;
 
     dispatch(
       // SAVE NEW TOKEN TO REDUX
@@ -282,14 +307,16 @@ export const refreshAndSaveToken = (refreshToken) => {
 
     if (rememberMe) {
       // IF UPDATE DATA IN DEVICE STORAGE
-      saveDataToStorage(
-        resData.user_id,
-        resData.id_token,
-        resData.refresh_token,
-        expirationDate,
-        infoId,
-        userName,
-        highestScore
+      dispatch(
+        saveDataToStorage(
+          resData.user_id,
+          resData.id_token,
+          resData.refresh_token,
+          expirationDate,
+          infoId,
+          userName,
+          highestScore
+        )
       );
     }
   };
@@ -334,14 +361,16 @@ export const refreshTokenAndAuthenticate = (
 
     if (rememberMe) {
       // IF UPDATE DATA IN DEVICE STORAGE
-      saveDataToStorage(
-        resData.user_id,
-        resData.id_token,
-        resData.refresh_token,
-        expirationDate,
-        Object.keys(userInfo)[0],
-        userInfo[Object.keys(userInfo)[0]].userName,
-        userInfo[Object.keys(userInfo)[0]].highestScore
+      dispatch(
+        saveDataToStorage(
+          resData.user_id,
+          resData.id_token,
+          resData.refresh_token,
+          expirationDate,
+          Object.keys(userInfo)[0],
+          userInfo[Object.keys(userInfo)[0]].userName,
+          userInfo[Object.keys(userInfo)[0]].highestScore
+        )
       );
     }
   };

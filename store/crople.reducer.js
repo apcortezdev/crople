@@ -8,9 +8,8 @@ import {
 const initialState = {
   infoId: null,
   userName: null,
-  points: 0,
+  points: 0, 
   highestScore: 0,
-  position: 7,
 };
 
 export default (state = initialState, action) => {

@@ -2,23 +2,24 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Animated,
+
+
+  Alert, Animated,
   Dimensions,
-  Alert,
+
   Easing,
   StyleSheet,
-  View,
+  View
 } from 'react-native';
 import { Title } from 'react-native-paper';
+import { useDispatch } from 'react-redux';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
 import * as authActions from '../store/auth.actions';
-import { useDispatch } from 'react-redux';
 
 const AuthScreen = (props) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
-  const [error, setError] = useState();
 
   const dispatch = useDispatch();
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
@@ -84,11 +85,9 @@ const AuthScreen = (props) => {
       password,
       rememberMe
     );
-    try {
-      dispatch(action);
-    } catch (err) {
+    await dispatch(action).catch((err) => {
       Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
-    }
+    });
     setIsLoadingLogin(false);
   };
 
@@ -133,12 +132,9 @@ const AuthScreen = (props) => {
         rememberMe,
         userName
       );
-      try {
-        await dispatch(action);
-      } catch (err) {
-        // REVIEW THISSSSSS
-        setError(err.message);
-      }
+      await dispatch(action).catch((err) => {
+        Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
+      });
       setIsLoadingSignUp(false);
     } else {
       Alert.alert(
