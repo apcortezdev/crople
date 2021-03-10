@@ -11,42 +11,50 @@ import {
 const Startup = (props) => {
   const dispatch = useDispatch();
 
-  useEffect(async () => {
-    const userData = dispatch(checkStorage());
-
-    if (!userData) {
-      props.navigation.navigate('Auth');
-      return;
-    }
-
-    if (!userData.token || !userData.refreshToken || !userData.userId) {
-      // STORAGE DATA CORRUPTED
-      props.navigation.navigate('Auth');
-      return;
-    } else if (new Date(userData.expiryDate) <= new Date()) {
-      // TOKEN INVALID
-
-      dispatch(refreshTokenAndAuthenticate(userData.refreshToken, true)).catch(
-        () => {
-          // ERROR WHEN REFRESHING
-          dispatch(logout());
+  useEffect(() => {
+    // const userData = dispatch(checkStorage());
+    dispatch(checkStorage()).then(
+      (userData) => {
+        if (!userData) {
           props.navigation.navigate('Auth');
           return;
         }
-      );
-      return;
-    }
-    // TOKEN STILL VALID
-    dispatch(
-      authenticate(
-        userData.userId,
-        userData.token,
-        userData.refreshToken,
-        new Date(userData.expiryDate),
-        userData.infoId,
-        userData.userName,
-        userData.highestScore
-      )
+
+        if (!userData.token || !userData.refreshToken || !userData.userId) {
+          // STORAGE DATA CORRUPTED
+          props.navigation.navigate('Auth');
+          return;
+        } else if (new Date(userData.expiryDate) <= new Date()) {
+          // TOKEN INVALID
+
+          dispatch(
+            refreshTokenAndAuthenticate(userData.refreshToken, true)
+          ).catch(() => {
+            // ERROR WHEN REFRESHING
+            dispatch(logout());
+            props.navigation.navigate('Auth');
+            return;
+          });
+          return;
+        }
+        // TOKEN STILL VALID
+        dispatch(
+          authenticate(
+            userData.userId,
+            userData.token,
+            userData.refreshToken,
+            new Date(userData.expiryDate),
+            userData.infoId,
+            userData.userEmail,
+            userData.userName,
+            userData.highestScore
+          )
+        );
+      },
+      () => {
+        props.navigation.navigate('Auth');
+        return;
+      }
     );
   }, [dispatch]);
 

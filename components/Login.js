@@ -13,6 +13,7 @@ const Login = (props) => {
   const [userEmail, setUserEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
+  const [isSecureEntry, setIsSecureEntry] = useState(true);
 
   const opacityInputUserEmail = useRef(new Animated.Value(0)).current;
   const translateYInputUserEmail = useRef(new Animated.Value(-10)).current;
@@ -140,11 +141,19 @@ const Login = (props) => {
               onChangeText={(text) => setPassword(text)}
               selectionColor="#F63A65"
               underlineColor="#f9ab8f"
-              secureTextEntry
+              secureTextEntry={isSecureEntry}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
-              maxLength={12}
+              right={
+                <TextInput.Icon
+                  name={isSecureEntry ? "eye-off-outline" : "eye-outline"} 
+                  color="#808080"
+                  onPress={() => {
+                    setIsSecureEntry(!isSecureEntry);
+                  }}
+                />
+              }
             />
           </Animated.View>
           <Animated.View

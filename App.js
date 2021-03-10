@@ -13,6 +13,9 @@ import rankReducer from './store/rank.reducer';
 import ReduxThunk from 'redux-thunk';
 
 import { enableScreens } from 'react-native-screens';
+import DarkTheme from './styles/DarkTheme';
+import LightTheme from './styles/LightTheme';
+import { useColorScheme } from 'react-native';
 
 enableScreens();
 
@@ -30,11 +33,14 @@ export default function App() {
     OpenSans: require('./assets/fonts/OpenSans-Regular.ttf'),
   });
 
+  const colorScheme = useColorScheme() === 'dark' ? DarkTheme : LightTheme;
+
   if (!fontsLoaded) {
     return <AppLoading />;
   } else {
     return (
       <Provider store={store}>
+        {/* <NavigationContainer theme={colorScheme}> */}
         <NavigationContainer>
           <CropleNavigator />
           <StatusBar translucent={true} />

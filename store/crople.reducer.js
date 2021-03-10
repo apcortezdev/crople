@@ -7,6 +7,7 @@ import {
 
 const initialState = {
   infoId: null,
+  userEmail: null,
   userName: null,
   points: 0, 
   highestScore: 0,
@@ -23,6 +24,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         infoId: action.infoId,
+        userEmail: action.userEmail,
         userName: action.userName,
         points: 0,
         highestScore: action.highestScore,

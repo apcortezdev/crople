@@ -52,7 +52,7 @@ export const signupOrLogin = (
       // IF IS NEW USER, USER DETAILS HAVE TO BE SAVED
       try {
         infoId = await dispatch(
-          saveNewUserData(resData.idToken, resData.localId, userName)
+          saveNewUserData(resData.idToken, resData.localId, userName, email)
         );
       } catch (err) {
         throw new Error(err.message);
@@ -64,6 +64,7 @@ export const signupOrLogin = (
         );
         infoId = Object.keys(userInfo)[0];
         userName = userInfo[Object.keys(userInfo)[0]].userName;
+        email = userInfo[Object.keys(userInfo)[0]].userEmail;
         highestScore = userInfo[Object.keys(userInfo)[0]].highestScore;
       } catch (err) {
         throw new Error(err.message);
@@ -83,6 +84,7 @@ export const signupOrLogin = (
         resData.refreshToken,
         expirationDate,
         infoId,
+        email,
         userName,
         highestScore
       )
@@ -97,6 +99,7 @@ export const signupOrLogin = (
           resData.refreshToken,
           expirationDate,
           infoId,
+          email,
           userName,
           highestScore
         )
@@ -105,7 +108,13 @@ export const signupOrLogin = (
   };
 };
 
-export const saveNewUserData = (token, userId, userName, userImage = null) => {
+export const saveNewUserData = (
+  token,
+  userId,
+  userName,
+  userEmail,
+  userImage = null
+) => {
   // SAVE USER DETAILS TO REALTIME DATABASE AFTER NEW SIGN UP
   return async () => {
     const endPointUrl = config.API_USERS.concat('auth='.concat(token));
@@ -118,6 +127,7 @@ export const saveNewUserData = (token, userId, userName, userImage = null) => {
       body: JSON.stringify({
         userId,
         userName,
+        userEmail,
         userImage,
         highestScore: 0,
       }),
@@ -162,6 +172,7 @@ export const authenticate = (
   refreshToken,
   expiresIn,
   infoId,
+  userEmail,
   userName,
   highestScore
 ) => {
@@ -174,6 +185,7 @@ export const authenticate = (
       refreshToken: refreshToken,
       expiresIn: expiresIn,
       infoId: infoId,
+      userEmail: userEmail,
       userName: userName,
       highestScore: highestScore,
     });
@@ -197,6 +209,7 @@ export const saveDataToStorage = (
   refreshToken,
   expirationDate,
   infoId,
+  userEmail,
   userName,
   highestScore
 ) => {
@@ -214,6 +227,7 @@ export const saveDataToStorage = (
           refreshToken: refreshToken,
           userId: userId,
           infoId: infoId,
+          userEmail: userEmail,
           userName: userName,
           highestScore: highestScore,
         })
@@ -230,6 +244,7 @@ export const saveDataToStorage = (
           refreshToken: refreshToken,
           userId: userId,
           infoId: infoId,
+          userEmail: userEmail,
           userName: userName,
           highestScore: highestScore,
         })
@@ -289,6 +304,7 @@ export const refreshAndSaveToken = (refreshToken) => {
     );
 
     const infoId = getState().game.infoId;
+    const userEmail = getState().game.userEmail;
     const userName = getState().game.userName;
     const highestScore = getState().game.highestScore;
 
@@ -300,6 +316,7 @@ export const refreshAndSaveToken = (refreshToken) => {
         resData.refresh_token,
         expirationDate,
         infoId,
+        userEmail,
         userName,
         highestScore
       )
@@ -314,6 +331,7 @@ export const refreshAndSaveToken = (refreshToken) => {
           resData.refresh_token,
           expirationDate,
           infoId,
+          userEmail,
           userName,
           highestScore
         )
@@ -354,6 +372,7 @@ export const refreshTokenAndAuthenticate = (
         resData.refresh_token,
         expirationDate,
         Object.keys(userInfo)[0], // GETS PROP NAME (THIS NAME IS THE INFO ID)
+        userInfo[Object.keys(userInfo)[0]].userEmail,
         userInfo[Object.keys(userInfo)[0]].userName,
         userInfo[Object.keys(userInfo)[0]].highestScore
       )
@@ -368,6 +387,7 @@ export const refreshTokenAndAuthenticate = (
           resData.refresh_token,
           expirationDate,
           Object.keys(userInfo)[0],
+          userInfo[Object.keys(userInfo)[0]].userEmail,
           userInfo[Object.keys(userInfo)[0]].userName,
           userInfo[Object.keys(userInfo)[0]].highestScore
         )

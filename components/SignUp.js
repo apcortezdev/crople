@@ -17,6 +17,7 @@ const SignUp = (props) => {
   const [password, setPassword] = useState('');
   const [termsAgreement, setTermsAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [isSecureEntry, setIsSecureEntry] = useState(true);
 
   const opacityAvatar = useRef(new Animated.Value(0)).current;
   const translateYAvatar = useRef(new Animated.Value(-8)).current;
@@ -217,7 +218,7 @@ const SignUp = (props) => {
         <View style={styles.form}>
           <Animated.View style={[styles.inputHolder, inputUserNameAnimation]}>
             <TextInput
-              label="User Name"
+              label="User Name (10 letters only)"
               value={userName}
               onChangeText={(text) => setUserName(text)}
               selectionColor="#F63A65"
@@ -225,7 +226,7 @@ const SignUp = (props) => {
               theme={{
                 colors: { primary: '#F63A65' },
               }}
-              maxLength={12}
+              maxLength={10}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputEmailAnimation]}>
@@ -249,12 +250,21 @@ const SignUp = (props) => {
               onChangeText={(text) => setPassword(text)}
               selectionColor="#F63A65"
               underlineColor="#f9ab8f"
-              secureTextEntry
+              secureTextEntry={isSecureEntry}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
               minLenth={6}
               autoCapitalize="none"
+              right={
+                <TextInput.Icon
+                  name={isSecureEntry ? "eye-off-outline" : "eye-outline"} 
+                  color="#808080"
+                  onPress={() => {
+                    setIsSecureEntry(!isSecureEntry);
+                  }}
+                />
+              }
             />
           </Animated.View>
           <Animated.View

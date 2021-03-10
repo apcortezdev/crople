@@ -68,6 +68,7 @@ export const setNewRecord = (newRecord) => {
           storage.refreshToken,
           storage.expiryDate,
           storage.infoId,
+          storage.userEmail,
           storage.userName,
           newRecord
         )
