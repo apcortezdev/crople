@@ -9,8 +9,9 @@ const initialState = {
   infoId: null,
   userEmail: null,
   userName: null,
-  points: 0, 
+  points: 0,
   highestScore: 0,
+  userImage: null,
 };
 
 export default (state = initialState, action) => {
@@ -28,6 +29,7 @@ export default (state = initialState, action) => {
         userName: action.userName,
         points: 0,
         highestScore: action.highestScore,
+        userImage: action.userImage,
       };
     case SET_POINTS:
       return { ...state, points: action.points };

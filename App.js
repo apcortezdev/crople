@@ -10,6 +10,7 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import cropleReducer from './store/crople.reducer';
 import authReducer from './store/auth.reducer';
 import rankReducer from './store/rank.reducer';
+import tempsReducer from './store/temps.reducer';
 import ReduxThunk from 'redux-thunk';
 
 import { enableScreens } from 'react-native-screens';
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   game: cropleReducer,
   auth: authReducer,
   rank: rankReducer,
+  temps: tempsReducer,
 });
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));

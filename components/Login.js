@@ -126,7 +126,6 @@ const Login = (props) => {
               label="E-mail"
               value={userEmail}
               onChangeText={(text) => setUserEmail(text)}
-              selectionColor="#F63A65"
               underlineColor="#f9ab8f"
               keyboardType="email-address"
               theme={{
@@ -139,7 +138,6 @@ const Login = (props) => {
               label="Password"
               value={password}
               onChangeText={(text) => setPassword(text)}
-              selectionColor="#F63A65"
               underlineColor="#f9ab8f"
               secureTextEntry={isSecureEntry}
               theme={{

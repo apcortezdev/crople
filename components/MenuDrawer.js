@@ -1,20 +1,24 @@
 import {
+  AntDesign,
   FontAwesome5,
   Ionicons,
-  AntDesign,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { Avatar, Caption, Divider, Drawer, Title } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import * as authActions from '../store/auth.actions';
 
 const MenuDrawer = (props) => {
+  useEffect(() => {});
+
   const highestScore = useSelector((state) => state.game.highestScore);
   const position = useSelector((state) => state.rank.position);
   const userName = useSelector((state) => state.game.userName);
+  const image = useSelector((state) => state.game.userImage);
+  const changesPending = useSelector((state) => state.temps.pending);
 
   const dispatch = useDispatch();
 
@@ -52,24 +56,32 @@ const MenuDrawer = (props) => {
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContent}>
           <View style={styles.userInfo}>
-            {/* <Avatar.Text size={80} label="XD" /> */}
-
-            <Avatar.Icon
-              size={80}
-              icon={() => <AntDesign name="user" size={50} color="white" />}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
-            />
+            <View>
+              {!!!image ? (
+                <Avatar.Icon
+                  size={80}
+                  icon={() => <AntDesign name="user" size={50} color="white" />}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                />
+              ) : (
+                <Avatar.Image
+                  size={80}
+                  source={{ uri: image }}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                />
+              )}
+            </View>
             <View style={styles.userTitle}>
               <Title style={styles.title}>@{userName}</Title>
               <View style={styles.trophy}>
                 <Ionicons name={trophyIcon} size={14} color={trophyColor} />
                 <View style={{ paddingLeft: 5 }}>
                   <Caption styles={styles.labelStyle}>
-                    {position <= 0
-                      ? '\u221E'
-                      : position.toString().concat('#')}
+                    {position <= 0 ? '\u221E' : position.toString().concat('#')}
                   </Caption>
                 </View>
               </View>
@@ -90,7 +102,33 @@ const MenuDrawer = (props) => {
               icon={({ color, size }) => (
                 <Ionicons name="settings-outline" size={size} color={color} />
               )}
-              label="Settings"
+              label={
+                changesPending
+                  ? ({ color, size }) => (
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.labelStyle,
+                            { fontSize: size, color: color },
+                          ]}
+                        >
+                          Settings
+                        </Text>
+                        <FontAwesome5
+                          name="exclamation-circle"
+                          size={size}
+                          color="#61f70a"
+                        />
+                      </View>
+                    )
+                  : 'Settings'
+              }
               labelStyle={styles.labelStyle}
               onPress={() => {
                 props.navigation.navigate('Settings');

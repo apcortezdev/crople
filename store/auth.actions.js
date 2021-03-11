@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import config from '../config';
 import { AUTHENTICATE, LOGOUT } from './actionConstants';
+import * as FileSystem from 'expo-file-system';
 
 export const signupOrLogin = (
   // SIGN UP OR LOGIN IN FIREBASE AUTHENTICATION WITH EMAIL AND PASSWORD
@@ -9,7 +10,8 @@ export const signupOrLogin = (
   email,
   password,
   rememberMe,
-  userName = null
+  userName = null,
+  userImg = null
 ) => {
   return async (dispatch) => {
     let endPointUrl;
@@ -52,7 +54,13 @@ export const signupOrLogin = (
       // IF IS NEW USER, USER DETAILS HAVE TO BE SAVED
       try {
         infoId = await dispatch(
-          saveNewUserData(resData.idToken, resData.localId, userName, email)
+          saveNewUserData(
+            resData.idToken,
+            resData.localId,
+            userName,
+            email,
+            userImg.base64
+          )
         );
       } catch (err) {
         throw new Error(err.message);
@@ -66,6 +74,7 @@ export const signupOrLogin = (
         userName = userInfo[Object.keys(userInfo)[0]].userName;
         email = userInfo[Object.keys(userInfo)[0]].userEmail;
         highestScore = userInfo[Object.keys(userInfo)[0]].highestScore;
+        userImg = { base64: userInfo[Object.keys(userInfo)[0]].userImage };
       } catch (err) {
         throw new Error(err.message);
       }
@@ -75,6 +84,8 @@ export const signupOrLogin = (
       // TURNS EXPIRATION TIME (MILLISECONDS) INTO A DATE FOR FUTURE COMPARISON
       new Date().getTime() + parseInt(resData.expiresIn) * 1000
     );
+
+    const imageUri = await dispatch(saveImageToFileSystem(userImg));
 
     dispatch(
       // SAVE USER INFO TO REDUX
@@ -86,7 +97,8 @@ export const signupOrLogin = (
         infoId,
         email,
         userName,
-        highestScore
+        highestScore,
+        imageUri
       )
     );
 
@@ -101,10 +113,41 @@ export const signupOrLogin = (
           infoId,
           email,
           userName,
-          highestScore
+          highestScore,
+          imageUri
         )
       );
     }
+  };
+};
+
+export const saveImageToFileSystem = (userImage) => {
+  // SAVE USER PICTURE TO FILE WHEN LOGIN OR SIGNUP
+  return async () => {
+    const path = FileSystem.documentDirectory + config.STORAGE + '.jpg';
+
+    if (!!!userImage.uri) {
+      // IMAGE DOWNLOADED, MUST CONVERT TO FILE
+      try {
+        await FileSystem.writeAsStringAsync(path, userImage.base64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        await FileSystem.moveAsync({
+          //saves file from temp folder to filesystem
+          from: userImage.uri,
+          to: path,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    return path;
   };
 };
 
@@ -128,8 +171,8 @@ export const saveNewUserData = (
         userId,
         userName,
         userEmail,
-        userImage,
         highestScore: 0,
+        userImage,
       }),
     });
 
@@ -174,7 +217,8 @@ export const authenticate = (
   infoId,
   userEmail,
   userName,
-  highestScore
+  highestScore,
+  userImage = null
 ) => {
   // SAVE USER INFO TO REDUX
   return (dispatch) => {
@@ -188,6 +232,7 @@ export const authenticate = (
       userEmail: userEmail,
       userName: userName,
       highestScore: highestScore,
+      userImage: userImage,
     });
   };
 };
@@ -211,7 +256,8 @@ export const saveDataToStorage = (
   infoId,
   userEmail,
   userName,
-  highestScore
+  highestScore,
+  userImage = null
 ) => {
   return async () => {
     if (SecureStore.isAvailableAsync()) {
@@ -230,6 +276,7 @@ export const saveDataToStorage = (
           userEmail: userEmail,
           userName: userName,
           highestScore: highestScore,
+          userImage: userImage,
         })
       );
     } else {
@@ -247,6 +294,7 @@ export const saveDataToStorage = (
           userEmail: userEmail,
           userName: userName,
           highestScore: highestScore,
+          userImage: userImage,
         })
       );
     }
@@ -307,6 +355,7 @@ export const refreshAndSaveToken = (refreshToken) => {
     const userEmail = getState().game.userEmail;
     const userName = getState().game.userName;
     const highestScore = getState().game.highestScore;
+    const userImage = getState().game.userImage;
 
     dispatch(
       // SAVE NEW TOKEN TO REDUX
@@ -318,7 +367,8 @@ export const refreshAndSaveToken = (refreshToken) => {
         infoId,
         userEmail,
         userName,
-        highestScore
+        highestScore,
+        userImage
       )
     );
 
@@ -333,7 +383,8 @@ export const refreshAndSaveToken = (refreshToken) => {
           infoId,
           userEmail,
           userName,
-          highestScore
+          highestScore,
+          userImage
         )
       );
     }
@@ -343,6 +394,7 @@ export const refreshAndSaveToken = (refreshToken) => {
 export const refreshTokenAndAuthenticate = (
   // THIS WILL FETCH AND SAVE A NEW TOKEN TO REDUX AND THE STORAGE AND FETCH USER DATA FOR LOGIN
   refreshToken,
+  userImage,
   rememberMe = false
 ) => {
   return async (dispatch) => {
@@ -374,7 +426,8 @@ export const refreshTokenAndAuthenticate = (
         Object.keys(userInfo)[0], // GETS PROP NAME (THIS NAME IS THE INFO ID)
         userInfo[Object.keys(userInfo)[0]].userEmail,
         userInfo[Object.keys(userInfo)[0]].userName,
-        userInfo[Object.keys(userInfo)[0]].highestScore
+        userInfo[Object.keys(userInfo)[0]].highestScore,
+        userImage
       )
     );
 
@@ -389,7 +442,8 @@ export const refreshTokenAndAuthenticate = (
           Object.keys(userInfo)[0],
           userInfo[Object.keys(userInfo)[0]].userEmail,
           userInfo[Object.keys(userInfo)[0]].userName,
-          userInfo[Object.keys(userInfo)[0]].highestScore
+          userInfo[Object.keys(userInfo)[0]].highestScore,
+          userImage
         )
       );
     }

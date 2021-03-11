@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Avatar } from 'react-native-paper';
@@ -6,10 +6,12 @@ import { Avatar } from 'react-native-paper';
 const RankComponent = (props) => {
   let userName = null;
   let score = null;
+  let image = null;
 
   if (!!props.player) {
     userName = props.player[Object.keys(props.player)[0]].userName;
     score = props.player[Object.keys(props.player)[0]].highestScore;
+    image = props.player[Object.keys(props.player)[0]].userImage;
   }
 
   let trophyColor;
@@ -51,7 +53,23 @@ const RankComponent = (props) => {
         ) : (
           <View style={styles.userSnap}>
             <View style={styles.avatarContainer}>
-              <Avatar.Text size={35} label="XD" />
+              {!!image ? (
+                <Avatar.Image
+                  size={35}
+                  source={{ uri: 'data:image/jpg;base64,' + image }}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                />
+              ) : (
+                <Avatar.Icon
+                  size={35}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                  icon={() => <AntDesign name="user" size={24} color="white" />}
+                />
+              )}
             </View>
             <Text style={styles.text}>{userName}</Text>
           </View>

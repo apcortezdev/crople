@@ -2,17 +2,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
-
-
-  Alert, Animated,
+  Alert,
+  Animated,
   Dimensions,
-
   Easing,
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 import { Title } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
+import ImagePicker from '../components/ImagePicker';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
 import * as authActions from '../store/auth.actions';
@@ -20,10 +19,12 @@ import * as authActions from '../store/auth.actions';
 const AuthScreen = (props) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
+  const [image, setImage] = useState(null);
 
   const dispatch = useDispatch();
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
   const [isLoadingSignUp, setIsLoadingSignUp] = useState(false);
+  const [imagePickerVisible, setImagePickerVisible] = useState(false);
 
   const translateYGradient = useRef(new Animated.Value(0)).current;
   const translateYGradientAnimation = {
@@ -116,6 +117,15 @@ const AuthScreen = (props) => {
     );
   };
 
+  const choseImageModal = () => {
+    setImagePickerVisible(!imagePickerVisible);
+  };
+
+  const setPickedImage = (pickedImage) => {
+    setImagePickerVisible(false);
+    setImage(pickedImage);
+  };
+
   const signUpWithEmailHandler = async (
     email,
     password,
@@ -130,7 +140,8 @@ const AuthScreen = (props) => {
         email,
         password,
         rememberMe,
-        userName
+        userName,
+        image
       );
       await dispatch(action).catch((err) => {
         Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
@@ -185,10 +196,17 @@ const AuthScreen = (props) => {
             <SignUp
               onPressBack={backToLogIn}
               onSignUpWithEmail={signUpWithEmailHandler}
+              onSetImage={choseImageModal}
+              image={image}
             />
           )}
         </>
       )}
+      <ImagePicker
+        visible={imagePickerVisible}
+        onSetImage={setPickedImage}
+        onDismiss={choseImageModal}
+      />
     </View>
   );
 };

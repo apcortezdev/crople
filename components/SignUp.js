@@ -200,19 +200,29 @@ const SignUp = (props) => {
     <View style={styles.screen}>
       <View style={styles.formHolder}>
         <Animated.View style={[styles.avatarHolder, avatarAnimation]}>
-          <TouchableWithoutFeedback onPress={() => {}}>
-            <>
-              <Avatar.Icon
-                size={80}
-                icon={() => <AntDesign name="user" size={50} color="white" />}
-                theme={{
-                  colors: { primary: '#F63A65' },
-                }}
-              />
+          <TouchableWithoutFeedback onPress={props.onSetImage}>
+            <View>
+              {!!!props.image ? (
+                <Avatar.Icon
+                  size={80}
+                  icon={() => <AntDesign name="user" size={50} color="white" />}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                />
+              ) : (
+                <Avatar.Image
+                  size={80}
+                  source={{ uri: 'data:image/jpg;base64,' + props.image.base64 }}
+                  theme={{
+                    colors: { primary: '#F63A65' },
+                  }}
+                />
+              )}
               <View style={styles.badge}>
                 <MaterialIcons name="edit" size={24} color="white" />
               </View>
-            </>
+            </View>
           </TouchableWithoutFeedback>
         </Animated.View>
         <View style={styles.form}>
@@ -258,7 +268,7 @@ const SignUp = (props) => {
               autoCapitalize="none"
               right={
                 <TextInput.Icon
-                  name={isSecureEntry ? "eye-off-outline" : "eye-outline"} 
+                  name={isSecureEntry ? 'eye-off-outline' : 'eye-outline'}
                   color="#808080"
                   onPress={() => {
                     setIsSecureEntry(!isSecureEntry);
@@ -378,17 +388,6 @@ const styles = StyleSheet.create({
   avatarHolder: {
     marginBottom: 20,
   },
-  badge: {
-    position: 'absolute',
-    top: 50,
-    left: 50,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#e7e7e7',
-  },
   form: {
     width: '75%',
   },
@@ -470,6 +469,17 @@ const styles = StyleSheet.create({
   backArrowView: {
     marginTop: 20,
     marginLeft: 10,
+  },
+  badge: {
+    position: 'absolute',
+    top: 50,
+    left: 50,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e7e7e7',
   },
 });
 

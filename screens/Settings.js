@@ -1,27 +1,191 @@
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
+  Alert,
   Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
-  View
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import { Avatar, Modal, Switch, TextInput, Title } from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import {
+  Avatar,
+  Button,
+  Caption,
+  Dialog,
+  Paragraph,
+  Switch,
+  TextInput,
+  Title,
+} from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 import MenuReturn from '../components/MenuReturn';
+import ImagePicker from '../components/ImagePicker';
+import { logout, resetPassword } from '../store/auth.actions';
+import {
+  setSettingsUserName,
+  setSettingsUserEmail,
+  setSettings,
+} from '../store/temps.actions';
+import {
+  validateNameSize,
+  validateNameSlur,
+  validateIsEmail,
+} from '../components/Validations';
 
 const Settings = (props) => {
-  const [userName, setUserName] = useState(useSelector((state) => state.game.userName));
-  const [userEmail, setUserEmail] = useState(useSelector((state) => state.game.userEmail));
-  const [userOldPassword, setUserOldPassword] = useState('');
-  const [userNewPassword, setUserNewPassword] = useState('');
-  const [userNewPasswordConfirm, setUserNewPasswordConfirm] = useState('');
-  const [isSecureEntry, setIsSecureEntry] = useState(true);
+  const dispatch = useDispatch();
+
+  const oldUserName = useSelector((state) => state.game.userName);
+  const [userName, setUserName] = useState(
+    useSelector((state) => state.temps.settings.userName)
+      ? useSelector((state) => state.temps.settings.userName)
+      : useSelector((state) => state.game.userName)
+  );
+  const [hasUserNameChanged, setHasUserNameChanged] = useState(
+    userName === oldUserName ? false : true
+  );
+
+  const oldUserEmail = useSelector((state) => state.game.userEmail);
+  const [userEmail, setUserEmail] = useState(
+    useSelector((state) => state.temps.settings.userEmail)
+      ? useSelector((state) => state.temps.settings.userEmail)
+      : useSelector((state) => state.game.userEmail)
+  );
+  const [hasUserEmailChanged, setHasUserEmailChanged] = useState(
+    userEmail === oldUserEmail ? false : true
+  );
+
+  const oldUserImage = useSelector((state) => state.game.userImage);
+  const [hasUserImageChanged, setHasUserImageChanged] = useState(false);
+  const [userImage, setUserImage] = useState(
+    useSelector((state) => state.game.userImage)
+  );
+
   const [isDarkTheme, setIsDarkTheme] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [imagePickerVisible, setImagePickerVisible] = useState(false);
+
+  const setImage = () => {
+    setImagePickerVisible(true);
+  };
+
+  const choseImageModal = () => {
+    setImagePickerVisible(!imagePickerVisible);
+  };
+
+  const setPickedImage = (pickedImage) => {
+    setImagePickerVisible(false);
+    setUserImage(pickedImage.uri);
+    if (oldUserImage != userImage) {
+      setHasUserImageChanged(true);
+    } else {
+      setHasUserImageChanged(false);
+    }
+  };
+
+  const changePasswordButton = () => {
+    setIsDialogVisible(true);
+  };
+
+  const changePassword = () => {
+    dispatch(resetPassword(userEmail)).then(
+      () => {
+        dispatch(logout());
+      },
+      () => {
+        Alert.alert('Sorry', 'We had a problem. Please try again later!', [
+          { text: 'Ok' },
+        ]);
+      }
+    );
+  };
+
+  // VALIDATION>
+  const setName = (name) => {
+    if (name === oldUserName) {
+      setHasUserNameChanged(false);
+      dispatch(setSettingsUserName(null));
+    } else {
+      setHasUserNameChanged(true);
+      dispatch(setSettingsUserName(name));
+    }
+    setUserName(name.trim().replace(/ /g, ''));
+  };
+
+  const setEmail = (email) => {
+    if (email === oldUserEmail) {
+      setHasUserEmailChanged(false);
+      dispatch(setSettingsUserEmail(null));
+    } else {
+      setHasUserEmailChanged(true);
+      dispatch(setSettingsUserEmail(email));
+    }
+    setUserEmail(email);
+  };
+
+  const nameOnBlur = () => {
+    if (userName.length === 0) {
+      setUserName(oldUserName);
+      setHasUserNameChanged(false);
+      return;
+    }
+  };
+  const emailOnBlur = () => {
+    if (userEmail.length === 0) {
+      setUserEmail(oldUserEmail);
+      setHasUserEmailChanged(false);
+      return;
+    }
+  };
+
+  const saveChanges = () => {
+    if (hasUserNameChanged || hasUserEmailChanged || hasUserImageChanged) {
+      if (!validateNameSlur(userName)) {
+        Alert.alert("That's offensive...", "Sorry, you can't use this name.", [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+      if (!validateNameSize(userName)) {
+        Alert.alert('Too short...', 'Name has to have at least 4 letters.', [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+      if (!validateIsEmail(userEmail)) {
+        Alert.alert('Not an Email.', 'Please chose a valid e-mail address.', [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+    } else {
+      Alert.alert('Save', "Well.. looks like there's nothing to be saved.", [
+        { text: 'Ok' },
+      ]);
+    }
+  };
+  // <VALIDATION
+
+  const discartAndBack = () => {
+    const settings = {
+      userName: null,
+      userEmail: null,
+      userImage: null,
+    };
+    dispatch(setSettings(settings));
+    props.navigation.goBack();
+  };
+
+  const discartChanges = () => {
+    Alert.alert('Discart', 'Wish to discart all changes?', [
+      { text: 'No' },
+      { text: 'Yes', onPress: discartAndBack, style: 'cancel' },
+    ]);
+  };
 
   return (
     <View style={styles.screen}>
@@ -45,32 +209,66 @@ const Settings = (props) => {
         <View style={styles.settingsCard}>
           <View style={styles.sectionTitleContaiter}>
             <Title style={styles.title}>Profile</Title>
+            {(hasUserNameChanged ||
+              hasUserEmailChanged ||
+              hasUserImageChanged) && (
+              <View style={styles.changeMessageContainer}>
+                <FontAwesome5
+                  name="exclamation-circle"
+                  size={15}
+                  color="#61f70a"
+                />
+                <Caption style={styles.changeMessage}>Changes pending!</Caption>
+              </View>
+            )}
           </View>
           <ScrollView style={styles.settingsScrollView}>
             <View style={styles.mainSection}>
               <View style={styles.imageContainer}>
-                <View>
-                  <Avatar.Icon
-                    size={80}
-                    icon={() => (
-                      <AntDesign name="user" size={50} color="white" />
+                <TouchableWithoutFeedback onPress={setImage}>
+                  <View>
+                    {!!!userImage ? (
+                      <Avatar.Icon
+                        size={80}
+                        icon={() => (
+                          <AntDesign name="user" size={50} color="white" />
+                        )}
+                        theme={{
+                          colors: { primary: '#F63A65' },
+                        }}
+                      />
+                    ) : (
+                      <Avatar.Image
+                        size={80}
+                        source={{
+                          uri: userImage,
+                        }}
+                        theme={{
+                          colors: { primary: '#F63A65' },
+                        }}
+                      />
                     )}
-                    theme={{
-                      colors: { primary: '#F63A65' },
-                    }}
-                  />
-                  <View style={styles.badge}>
-                    <MaterialIcons name="edit" size={24} color="white" />
+                    <View
+                      style={
+                        hasUserImageChanged
+                          ? [styles.badge, styles.changedImage]
+                          : [styles.badge, styles.NotchangedImage]
+                      }
+                    >
+                      <MaterialIcons name="edit" size={24} color="white" />
+                    </View>
                   </View>
-                </View>
+                </TouchableWithoutFeedback>
               </View>
               <View style={styles.textInputHolder}>
                 <TextInput
-                  label="Player Name (10 letters only!)"
+                  label="Name (10 letters, no space!)"
                   value={userName}
-                  onChangeText={(text) => setUserName(text)}
-                  // autoFocus={true}
+                  onChangeText={(text) => setName(text)}
+                  onBlur={nameOnBlur}
+                  underlineColor={hasUserNameChanged ? '#61f70a' : '#f9ab8f'}
                   maxLength={10}
+                  Color
                   theme={{
                     colors: { primary: '#F63A65' },
                   }}
@@ -80,15 +278,16 @@ const Settings = (props) => {
                 <TextInput
                   label="E-mail"
                   value={userEmail}
-                  onChangeText={(text) => setUserEmail(text)}
-                  secureTextEntry={false}
+                  onChangeText={(text) => setEmail(text)}
+                  onBlur={emailOnBlur}
+                  underlineColor={hasUserEmailChanged ? '#61f70a' : '#f9ab8f'}
                   theme={{
                     colors: { primary: '#F63A65' },
                   }}
                 />
               </View>
-              <View style={styles.sectionButton}>
-                <TouchableNativeFeedback onPress={() => setModalVisible(true)}>
+              <View style={styles.sectionButtonPassword}>
+                <TouchableNativeFeedback onPress={changePasswordButton}>
                   <View style={styles.buttonSave}>
                     <Text style={styles.text}>Change Password</Text>
                   </View>
@@ -109,87 +308,16 @@ const Settings = (props) => {
               </View>
             </View>
           </ScrollView>
-          <View style={styles.sectionButton}>
-            <TouchableNativeFeedback onPress={() => {}}>
-              <View style={styles.buttonSave}>
-                <Text style={styles.text}>Save</Text>
-              </View>
-            </TouchableNativeFeedback>
-          </View>
-        </View>
-      </View>
-      <Modal
-        visible={isModalVisible}
-        onDismiss={() => setModalVisible(false)}
-        contentContainerStyle={styles.containerStyle}
-      >
-        <View style={styles.modalView}>
-          <View style={styles.sectionTitleModalContainer}>
-            <Title style={styles.title}>Change Password</Title>
-          </View>
-          <View style={styles.textInputHolder}>
-            <TextInput
-              label="Old Password"
-              value={userOldPassword}
-              onChangeText={(text) => setUserOldPassword(text)}
-              secureTextEntry={isSecureEntry}
-              right={
-                <TextInput.Icon
-                  name={isSecureEntry ? 'eye-off-outline' : 'eye-outline'}
-                  color="#808080"
-                  onPress={() => {
-                    setIsSecureEntry(!isSecureEntry);
-                  }}
-                />
-              }
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
-            />
-          </View>
-          <View style={styles.textInputHolder}>
-            <TextInput
-              label="New Password"
-              value={userNewPassword}
-              onChangeText={(text) => setUserNewPassword(text)}
-              secureTextEntry={isSecureEntry}
-              right={
-                <TextInput.Icon
-                  name={isSecureEntry ? 'eye-off-outline' : 'eye-outline'}
-                  color="#808080"
-                  onPress={() => {
-                    setIsSecureEntry(!isSecureEntry);
-                  }}
-                />
-              }
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
-            />
-          </View>
-          <View style={styles.textInputHolder}>
-            <TextInput
-              label="Confirm New Password"
-              value={userNewPasswordConfirm}
-              onChangeText={(text) => setUserNewPasswordConfirm(text)}
-              secureTextEntry={isSecureEntry}
-              right={
-                <TextInput.Icon
-                  name={isSecureEntry ? 'eye-off-outline' : 'eye-outline'}
-                  color="#808080"
-                  onPress={() => {
-                    setIsSecureEntry(!isSecureEntry);
-                  }}
-                />
-              }
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
-            />
-          </View>
-          <View style={styles.buttonSaveModalContainer}>
-            <View style={styles.buttonSaveModal}>
-              <TouchableNativeFeedback onPress={() => {}}>
+          <View style={styles.sectionButtonSave}>
+            <View style={styles.wrapButton}>
+              <TouchableNativeFeedback onPress={discartChanges}>
+                <View style={styles.buttonDiscart}>
+                  <Text style={styles.text}>Discart</Text>
+                </View>
+              </TouchableNativeFeedback>
+            </View>
+            <View style={styles.wrapButton}>
+              <TouchableNativeFeedback onPress={saveChanges}>
                 <View style={styles.buttonSave}>
                   <Text style={styles.text}>Save</Text>
                 </View>
@@ -197,7 +325,28 @@ const Settings = (props) => {
             </View>
           </View>
         </View>
-      </Modal>
+      </View>
+      <Dialog
+        visible={isDialogVisible}
+        onDismiss={() => setIsDialogVisible(false)}
+      >
+        <Dialog.Title>Change of Password</Dialog.Title>
+        <Dialog.Content>
+          <Paragraph>
+            This will log you out and send you an e-mail for password reset.
+            Would you like to continue?
+          </Paragraph>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={() => setIsDialogVisible(false)}>Cancel</Button>
+          <Button onPress={changePassword}>Continue</Button>
+        </Dialog.Actions>
+      </Dialog>
+      <ImagePicker
+        visible={imagePickerVisible}
+        onSetImage={setPickedImage}
+        onDismiss={choseImageModal}
+      />
     </View>
   );
 };
@@ -233,23 +382,13 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height * 0.83,
     width: Dimensions.get('window').width * 0.9,
   },
-  modalView: {
-    backgroundColor: '#FFFFFF',
-    width: Dimensions.get('window').width * 0.9,
-    borderRadius: 25,
-    paddingHorizontal: 20,
+  sectionButtonPassword: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
-  sectionTitleModalContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    marginVertical: 25,
-    marginHorizontal: 15,
-  },
-  containerStyle: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  sectionButton: {
+  sectionButtonSave: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
@@ -273,7 +412,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e7e7e7',
   },
   textInputHolder: {
     paddingVertical: 10,
@@ -304,21 +442,37 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 5,
   },
+  buttonDiscart: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9ab8f',
+    height: 40,
+    borderRadius: 5,
+  },
+  wrapButton: {
+    width: '47%',
+  },
   sectionTitleContaiter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  buttonSaveModalContainer: {
-    marginVertical: 25,
-    marginHorizontal: 15,
-    borderTopWidth: 1,
-    paddingVertical: 10,
-    borderTopColor: '#f0f0f0',
+  changedImage: {
+    backgroundColor: '#61f70a',
+  },
+  NotchangedImage: {
+    backgroundColor: '#e7e7e7',
+  },
+  changeMessage: {
+    marginLeft: 10,
+    color: '#61f70a',
+  },
+  changeMessageContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  buttonSaveModal: {
-    width: '60%',
-  },
+  }
 });
 
 export default Settings;

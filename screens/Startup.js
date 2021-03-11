@@ -28,7 +28,7 @@ const Startup = (props) => {
           // TOKEN INVALID
 
           dispatch(
-            refreshTokenAndAuthenticate(userData.refreshToken, true)
+            refreshTokenAndAuthenticate(userData.refreshToken, userData.userImage, true)
           ).catch(() => {
             // ERROR WHEN REFRESHING
             dispatch(logout());
@@ -47,7 +47,8 @@ const Startup = (props) => {
             userData.infoId,
             userData.userEmail,
             userData.userName,
-            userData.highestScore
+            userData.highestScore,
+            userData.userImage
           )
         );
       },
