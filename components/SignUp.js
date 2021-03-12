@@ -7,13 +7,24 @@ import {
   Text,
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
-  View
+  View,
 } from 'react-native';
 import { Avatar, Checkbox, TextInput } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setSettingsUserName,
+  setSettingsUserEmail,
+} from '../store/temps.actions';
 
 const SignUp = (props) => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
+  const dispatch = useDispatch();
+
+  const [userName, setUserName] = useState(
+    useSelector((state) => state.temps.settings.userName)
+  );
+  const [userEmail, setUserEmail] = useState(
+    useSelector((state) => state.temps.settings.userEmail)
+  );
   const [password, setPassword] = useState('');
   const [termsAgreement, setTermsAgreement] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -79,6 +90,16 @@ const SignUp = (props) => {
   const arrowAnimation = {
     opacity: opacityArrow,
     transform: [{ translateY: translateYArrow }],
+  };
+
+  const setName = (name) => {
+    dispatch(setSettingsUserName(name));
+    setUserName(name.trim().replace(/ /g, ''));
+  };
+
+  const setEmail = (email) => {
+    dispatch(setSettingsUserEmail(email));
+    setUserEmail(email);
   };
 
   const formAnimation = Animated.stagger(50, [
@@ -213,7 +234,9 @@ const SignUp = (props) => {
               ) : (
                 <Avatar.Image
                   size={80}
-                  source={{ uri: 'data:image/jpg;base64,' + props.image.base64 }}
+                  source={{
+                    uri: 'data:image/jpg;base64,' + props.image.base64,
+                  }}
                   theme={{
                     colors: { primary: '#F63A65' },
                   }}
@@ -228,11 +251,12 @@ const SignUp = (props) => {
         <View style={styles.form}>
           <Animated.View style={[styles.inputHolder, inputUserNameAnimation]}>
             <TextInput
-              label="User Name (10 letters only)"
+              label="Name (10 letters, no space!)"
               value={userName}
-              onChangeText={(text) => setUserName(text)}
+              onChangeText={(text) => setName(text)}
               selectionColor="#F63A65"
               underlineColor="#f9ab8f"
+              autoCapitalize={'none'}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
@@ -242,11 +266,12 @@ const SignUp = (props) => {
           <Animated.View style={[styles.inputHolder, inputEmailAnimation]}>
             <TextInput
               label="Email"
-              value={email}
+              value={userEmail}
               onChangeText={(text) => setEmail(text)}
               selectionColor="#F63A65"
               underlineColor="#f9ab8f"
               keyboardType="email-address"
+              autoCapitalize={'none'}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
@@ -261,6 +286,7 @@ const SignUp = (props) => {
               selectionColor="#F63A65"
               underlineColor="#f9ab8f"
               secureTextEntry={isSecureEntry}
+              autoCapitalize={'none'}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
@@ -319,7 +345,7 @@ const SignUp = (props) => {
             <TouchableNativeFeedback
               onPress={props.onSignUpWithEmail.bind(
                 this,
-                email,
+                userEmail,
                 password,
                 rememberMe,
                 userName,

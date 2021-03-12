@@ -14,7 +14,14 @@ import { useDispatch } from 'react-redux';
 import ImagePicker from '../components/ImagePicker';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
+import {
+  validateIsEmail,
+  validateNameSize,
+  validateNameSlur,
+  validatePasswordSize,
+} from '../components/Validations';
 import * as authActions from '../store/auth.actions';
+import { setSettings } from '../store/temps.actions';
 
 const AuthScreen = (props) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -79,17 +86,42 @@ const AuthScreen = (props) => {
   };
 
   const logInHandler = async (userEmail, password, rememberMe) => {
-    setIsLoadingLogin(true);
-    const action = authActions.signupOrLogin(
-      'login',
-      userEmail,
-      password,
-      rememberMe
-    );
-    await dispatch(action).catch((err) => {
-      Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
-    });
-    setIsLoadingLogin(false);
+    if ((!!userEmail, !!password)) {
+      setIsLoadingLogin(true);
+      if (!validateIsEmail(userEmail)) {
+        Alert.alert('Not an Email.', 'Please chose a valid e-mail address.', [
+          { text: 'Ok' },
+        ]);
+        setIsLoadingLogin(false);
+        return;
+      }
+      const action = authActions.signupOrLogin(
+        'login',
+        userEmail,
+        password,
+        rememberMe
+      );
+      await dispatch(action).then(
+        () => {
+          const settings = {
+            userName: null,
+            userEmail: null,
+            userImage: null,
+          };
+          dispatch(setSettings(settings));
+        },
+        (err) => {
+          Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
+        }
+      );
+      setIsLoadingLogin(false);
+    } else {
+      Alert.alert(
+        'Login',
+        'Something is missing! Check your e-mail and password.',
+        [{ text: 'Ok' }]
+      );
+    }
   };
 
   const resetPassword = async (userEmail) => {
@@ -133,26 +165,88 @@ const AuthScreen = (props) => {
     userName,
     termsAgreement
   ) => {
-    if (termsAgreement) {
-      setIsLoadingSignUp(true);
-      const action = authActions.signupOrLogin(
-        'signup',
-        email,
-        password,
-        rememberMe,
-        userName,
-        image
-      );
-      await dispatch(action).catch((err) => {
-        Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
-      });
-      setIsLoadingSignUp(false);
+    if (!!userName && !!password && !!email) {
+      if (!validateNameSlur(userName)) {
+        Alert.alert("That's offensive...", "Sorry, you can't use this name.", [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+      if (!validateNameSize(userName)) {
+        Alert.alert('Too short...', 'Name has to have at least 4 letters.', [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+      if (!validateIsEmail(email)) {
+        Alert.alert('Not an Email.', 'Please chose a valid e-mail address.', [
+          { text: 'Ok' },
+        ]);
+        return;
+      }
+      if (!validatePasswordSize(password)) {
+        Alert.alert(
+          'Password too short',
+          'Please chose password with at least 6 characters',
+          [{ text: 'Ok' }]
+        );
+        return;
+      }
+      if (termsAgreement) {
+        setIsLoadingSignUp(true);
+        dispatch(authActions.validateUserName(userName)).then(
+          (isValid) => {
+            if (isValid) {
+              const action = authActions.signupOrLogin(
+                'signup',
+                email,
+                password,
+                rememberMe,
+                userName,
+                image
+              );
+              dispatch(action).then(
+                () => {
+                  const settings = {
+                    userName: null,
+                    userEmail: null,
+                    userImage: null,
+                  };
+                  dispatch(setSettings(settings));
+                },
+                (err) => {
+                  Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
+                }
+              );
+            } else {
+              Alert.alert(
+                'Name',
+                'Sorry, this name is not available. Please try an other one',
+                [{ text: 'Okay' }]
+              );
+            }
+          },
+          () => {
+            Alert.alert(
+              'Name',
+              "There's something wrong with our servers. Please try again later =(",
+              [{ text: 'Okay' }]
+            );
+          }
+        );
+
+        setIsLoadingSignUp(false);
+      } else {
+        Alert.alert(
+          'Terms & Privacy Policy',
+          'You have to agree to the terms and privacy policy',
+          [{ text: 'Okay' }]
+        );
+      }
     } else {
-      Alert.alert(
-        'Terms & Privacy Policy',
-        'You have to agree to the terms and privacy policy',
-        [{ text: 'Okay' }]
-      );
+      Alert.alert('Sign Up', 'Sorry, some information are missing.', [
+        { text: 'Ok' },
+      ]);
     }
   };
 

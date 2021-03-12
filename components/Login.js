@@ -8,9 +8,16 @@ import {
   View,
 } from 'react-native';
 import { Checkbox, TextInput } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setSettingsUserEmail,
+} from '../store/temps.actions';
 
 const Login = (props) => {
-  const [userEmail, setUserEmail] = useState('');
+
+  const dispatch = useDispatch();
+
+  const [userEmail, setUserEmail] = useState(useSelector((state) => state.temps.settings.userEmail));
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isSecureEntry, setIsSecureEntry] = useState(true);
@@ -48,6 +55,11 @@ const Login = (props) => {
   const rememberMeHolderAnimation = {
     opacity: opacityRememberMeHolder,
     transform: [{ translateY: translateYRememberMeHolder }],
+  };
+
+  const setEmail = (email) => {
+    dispatch(setSettingsUserEmail(email));
+    setUserEmail(email);
   };
 
   useEffect(() => {
@@ -125,9 +137,10 @@ const Login = (props) => {
             <TextInput
               label="E-mail"
               value={userEmail}
-              onChangeText={(text) => setUserEmail(text)}
+              onChangeText={(text) => setEmail(text)}
               underlineColor="#f9ab8f"
               keyboardType="email-address"
+              autoCapitalize={"none"}
               theme={{
                 colors: { primary: '#F63A65' },
               }}
@@ -140,6 +153,7 @@ const Login = (props) => {
               onChangeText={(text) => setPassword(text)}
               underlineColor="#f9ab8f"
               secureTextEntry={isSecureEntry}
+              autoCapitalize={"none"}
               theme={{
                 colors: { primary: '#F63A65' },
               }}

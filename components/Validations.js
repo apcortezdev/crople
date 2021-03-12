@@ -20,8 +20,20 @@ const validateNameSize = (name) => {
 };
 
 const validateIsEmail = (email) => {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  };
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+};
 
-export { validateNameSlur, validateNameSize, validateIsEmail };
+const validatePasswordSize = (pass) => {
+  if (pass.toString().length < 6 || pass.toString().length > 24) {
+    return false;
+  }
+  return true;
+};
+
+export {
+  validateNameSlur,
+  validateNameSize,
+  validateIsEmail,
+  validatePasswordSize,
+};

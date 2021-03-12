@@ -8,6 +8,7 @@ import {
   API_USERS,
   API_USERS_DPI,
   API_USERS_DPA,
+  API_DEL_ACC,
 } from '@env';
 
 export default {
@@ -20,4 +21,5 @@ export default {
   API_USERS,
   API_USERS_DPI,
   API_USERS_DPA,
+  API_DEL_ACC,
 };

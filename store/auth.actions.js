@@ -50,6 +50,7 @@ export const signupOrLogin = (
 
     let infoId;
     let highestScore = 0;
+    let imageUri = null;
     if (action === 'signup') {
       // IF IS NEW USER, USER DETAILS HAVE TO BE SAVED
       try {
@@ -59,7 +60,7 @@ export const signupOrLogin = (
             resData.localId,
             userName,
             email,
-            userImg.base64
+            !!userImg && userImg.base64
           )
         );
       } catch (err) {
@@ -85,7 +86,9 @@ export const signupOrLogin = (
       new Date().getTime() + parseInt(resData.expiresIn) * 1000
     );
 
-    const imageUri = await dispatch(saveImageToFileSystem(userImg));
+    if (!!userImg) {
+      imageUri = await dispatch(saveImageToFileSystem(userImg));
+    }
 
     dispatch(
       // SAVE USER INFO TO REDUX
@@ -159,7 +162,7 @@ export const saveNewUserData = (
   userImage = null
 ) => {
   // SAVE USER DETAILS TO REALTIME DATABASE AFTER NEW SIGN UP
-  return async () => {
+  return async (dispatch) => {
     const endPointUrl = config.API_USERS.concat('auth='.concat(token));
 
     const response = await fetch(endPointUrl, {
@@ -177,11 +180,64 @@ export const saveNewUserData = (
     });
 
     if (!response.ok) {
-      throw new Error('Failed to save new user');
+      await dispatch(deleteAccount(token));
+      throw new Error(
+        "There's something wrong with our servers. Please try again later =("
+      );
     } else {
       const infoId = await response.json();
       return infoId.name;
     }
+  };
+};
+
+export const deleteAccount = (token) => {
+  return async (dispatch) => {
+    const endPointUrl = config.API_DEL_ACC.concat(config.API_KEY);
+
+    const response = await fetch(endPointUrl, {
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        idToken: token,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        "There's something wrong with our servers. Please try again later =("
+      );
+    }
+    dispatch(logout());
+  };
+};
+
+export const validateUserName = (userName) => {
+  // FETCH USER DETAILS FROM REALTIME DATABASE
+  return async () => {
+    const body = new URLSearchParams();
+    body.append('orderBy', '"userName"');
+    body.append('equalTo', '"' + userName + '"');
+    const endPointUrl = config.API_USERS.concat(body.toString());
+    const response = await fetch(endPointUrl);
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (!response.ok) {
+      if (data.error === 'Permission denied')
+        throw new Error(
+          "There's something wrong with our servers. Please try again later =("
+        );
+    }
+
+    if (!!data.userName) {
+      return false;
+    }
+    return true;
   };
 };
 
@@ -195,11 +251,16 @@ export const fetchUserData = (token, userId) => {
     const endPointUrl = config.API_USERS.concat(body.toString());
     const response = await fetch(endPointUrl);
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error();
+      if (data.error === 'Permission denied')
+        throw new Error(
+          "There's something wrong with our servers. Please try again later =(("
+        );
     }
 
-    return await response.json();
+    return data;
   };
 };
 
