@@ -159,7 +159,7 @@ const Login = (props) => {
               }}
               right={
                 <TextInput.Icon
-                  name={isSecureEntry ? "eye-off-outline" : "eye-outline"} 
+                  name={isSecureEntry ? "eye-outline" : "eye-off-outline"} 
                   color="#808080"
                   onPress={() => {
                     setIsSecureEntry(!isSecureEntry);

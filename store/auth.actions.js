@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import config from '../config';
-import { AUTHENTICATE, LOGOUT } from './actionConstants';
+import { AUTHENTICATE, LOGOUT, REFRESH_IMAGE } from './actionConstants';
 import * as FileSystem from 'expo-file-system';
 
 export const signupOrLogin = (
@@ -40,9 +40,9 @@ export const signupOrLogin = (
           errMessage =
             'This e-mail is already registered. Please use a different one.';
         else errMessage = 'The e-mail or password is invalid';
-      else if (action === 'signup')
+      else if (action === 'login')
         errMessage =
-          'There must be a problem with the connection. Please try again latter. ';
+          'There is a problem with the connection. Please try again latter. ';
       throw new Error(errMessage);
     }
 
@@ -55,12 +55,14 @@ export const signupOrLogin = (
       // IF IS NEW USER, USER DETAILS HAVE TO BE SAVED
       try {
         infoId = await dispatch(
-          saveNewUserData(
+          saveUserData(
+            'create',
             resData.idToken,
             resData.localId,
             userName,
             email,
-            !!userImg && userImg.base64
+            !!userImg && userImg.base64,
+            null
           )
         );
       } catch (err) {
@@ -86,7 +88,10 @@ export const signupOrLogin = (
       new Date().getTime() + parseInt(resData.expiresIn) * 1000
     );
 
-    if (!!userImg) {
+    // DELETE IMAGE FROM STORAGE CASE NEW USER WITH NO PIC
+    if (userImg === null || !userImg.base64) {
+      deleteImageFromFileSystem();
+    } else {
       imageUri = await dispatch(saveImageToFileSystem(userImg));
     }
 
@@ -125,7 +130,7 @@ export const signupOrLogin = (
 };
 
 export const saveImageToFileSystem = (userImage) => {
-  // SAVE USER PICTURE TO FILE WHEN LOGIN OR SIGNUP
+  // SAVE USER PICTURE TO FILE WHEN LOGIN OR SIGNUP OR UPDATE
   return async () => {
     const path = FileSystem.documentDirectory + config.STORAGE + '.jpg';
 
@@ -136,7 +141,7 @@ export const saveImageToFileSystem = (userImage) => {
           encoding: FileSystem.EncodingType.Base64,
         });
       } catch (err) {
-        console.log(err);
+        throw new Error(err.message);
       }
     } else {
       try {
@@ -146,41 +151,84 @@ export const saveImageToFileSystem = (userImage) => {
           to: path,
         });
       } catch (err) {
-        console.log(err);
+        throw new Error(err.message);
       }
     }
-
     return path;
   };
 };
 
-export const saveNewUserData = (
+export const deleteImageFromFileSystem = () => {
+  // IF A USER LOGS WITH PIC, THE PIC IS SAVED TO STORAGE,
+  // BUT IF THE USER LOGS OFF AND A SECOND USER LOGS IN WITH NO PIC
+  // THE FIRST USERS PIC MUST BE DELETED
+  return async () => {
+    const path = FileSystem.documentDirectory + config.STORAGE + '.jpg';
+    try {
+      await FileSystem.deleteAsync(path, {
+        idempotent: true,
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+};
+
+export const saveUserData = (
+  action,
   token,
   userId,
   userName,
   userEmail,
-  userImage = null
+  userImage = null,
+  userInfoId = null
 ) => {
   // SAVE USER DETAILS TO REALTIME DATABASE AFTER NEW SIGN UP
   return async (dispatch) => {
-    const endPointUrl = config.API_USERS.concat('auth='.concat(token));
-
-    const response = await fetch(endPointUrl, {
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    let endPointUrl;
+    let body;
+    let method;
+    if (action === 'create') {
+      endPointUrl = config.API_USERS.concat('auth='.concat(token));
+      method = 'POST';
+      body = JSON.stringify({
         userId,
         userName,
         userEmail,
         highestScore: 0,
         userImage,
-      }),
+      });
+    } else if (action === 'update') {
+      endPointUrl = config.API_USERS_DPI.concat(userInfoId)
+        .concat(config.API_USERS_DPA)
+        .concat(token);
+      method = 'PATCH';
+      if (userImage) {
+        body = JSON.stringify({
+          userName,
+          userEmail,
+          userImage,
+        });
+      } else {
+        body = JSON.stringify({
+          userName,
+          userEmail,
+        });
+      }
+    }
+
+    const response = await fetch(endPointUrl, {
+      method: method,
+      header: {
+        'Content-Type': 'application/json',
+      },
+      body: body,
     });
 
     if (!response.ok) {
-      await dispatch(deleteAccount(token));
+      if (action === 'create') {
+        await dispatch(deleteAccount(token));
+      }
       throw new Error(
         "There's something wrong with our servers. Please try again later =("
       );
@@ -225,8 +273,6 @@ export const validateUserName = (userName) => {
 
     const data = await response.json();
 
-    console.log(data);
-
     if (!response.ok) {
       if (data.error === 'Permission denied')
         throw new Error(
@@ -264,10 +310,196 @@ export const fetchUserData = (token, userId) => {
   };
 };
 
-export const updateUserData = (token, userId) => {
-  // UPDATE USER DETAILS IN REALTIME DATABASE
-  // USERS_DPI = USERS DELETE & PATCH API URL
-  // USERS_DPA = USERS DELETE & PATCH API AUTHENTICATION
+export const changeUserEmail = (newEmail) => {
+  return async (dispatch, getState) => {
+    if (!!newEmail) {
+      if (new Date(getState().auth.expirationToken) <= new Date()) {
+        const resData = await dispatch(
+          refreshTokenForId(getState().auth.refreshToken)
+        );
+        const expirationDate = new Date(
+          new Date().getTime() + parseInt(resData.expires_in) * 1000
+        );
+        await dispatch(
+          // SAVE NEW TOKEN TO REDUX
+          authenticate(
+            getState().auth.userId,
+            resData.id_token,
+            resData.refresh_token,
+            expirationDate,
+            getState().game.infoId, // GETS PROP NAME (THIS NAME IS THE INFO ID)
+            getState().game.userEmail,
+            getState().game.userName,
+            getState().game.highestScore,
+            getState().game.userImage
+          )
+        );
+      }
+
+      const userToken = resData.id_token;
+      const endPointUrl = config.API_USERS_UPDT.concat(config.API_KEY);
+
+      const body = JSON.stringify({
+        idToken: userToken,
+        email: newEmail,
+        returnSecureToken: true,
+      });
+
+      const response = await fetch(endPointUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      });
+
+      console.log(endPointUrl);
+      console.log(body);
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log(data);
+        throw new Error('Errors are bad.. and you just found one');
+      } else {
+      }
+      const data = await response.json();
+      console.log(data);
+      return data;
+    }
+    return false;
+  };
+};
+
+export const updateUserData = (callBackFunc) => {
+  return async (dispatch, getState) => {
+    if (!!getState().temps.pending) {
+      let newEmailRequest = null;
+      let newImage = null;
+      let newUserEmail;
+
+      // IF EQUAL TO OLD INFO OR NULL, KEEP OLD INFO, ELSE, SET NEW ONE
+      if (
+        getState().temps.settings.userEmail === getState().game.userEmail ||
+        getState().temps.settings.userEmail === null
+      ) {
+        newUserEmail = getState().game.userEmail;
+        newEmailRequest = null;
+      } else {
+        newUserEmail = getState().temps.settings.userEmail;
+        newEmailRequest = getState().temps.settings.userEmail;
+      }
+      if (!!newEmailRequest) {
+        // SAVE NEW EMAIL (AND CHANGE EMAIL FOR LOGIN)
+        try {
+          newEmailRequest = await dispatch(changeUserEmail(newUserEmail));
+        } catch (err) {
+          throw new Error(err.message);
+        }
+      }
+
+      const newUserImage =
+        !!getState().temps.settings.userImage &&
+        (getState().temps.settings.userImage.uri === getState().game.userImage
+          ? null
+          : getState().temps.settings.userImage);
+
+      if (!!newUserImage) {
+        // SAVE NEW IMAGE TO FILE SYSTEM
+        try {
+          newImage = await dispatch(saveImageToFileSystem(newUserImage));
+          // CLEAR CACHE BEFORE SETTING NEW IMAGE
+          dispatch({ type: REFRESH_IMAGE });
+        } catch (err) {
+          throw new Error(err.message);
+        }
+      }
+
+      // IF EQUAL TO OLD INFO OR NULL, KEEP OLD INFO, ELSE, SET NEW ONE
+      const newUserName =
+        getState().temps.settings.userName === getState().game.userName ||
+        getState().temps.settings.userName === null
+          ? getState().game.userName
+          : getState().temps.settings.userName;
+
+      const token = newEmailRequest
+        ? newEmailRequest.idToken
+        : getState().auth.userToken;
+      const refreshToken = newEmailRequest
+        ? newEmailRequest.refreshToken
+        : getState().auth.refreshToken;
+      const expires_in = newEmailRequest
+        ? newEmailRequest.expiresIn
+        : getState().auth.expirationToken;
+      const userImage = newImage ? newImage : getState().game.userImage;
+      const userId = getState().auth.userId;
+      let expirationDate = new Date(expires_in);
+
+      try {
+        // REFRESH TOKEN IF NEEDED
+        if (new Date(expirationDate) <= new Date()) {
+          const resData = await dispatch(refreshTokenForId(refreshToken));
+          expirationDate = new Date(
+            new Date().getTime() + parseInt(resData.expires_in) * 1000
+          );
+          token = resData.id_token;
+          refreshToken = resData.refresh_token;
+        }
+
+        await dispatch(
+          // SAVE CHANGES TO FIREBASE
+          saveUserData(
+            'update',
+            token,
+            userId,
+            newUserName,
+            newUserEmail,
+            newUserImage ? newUserImage.base64 : null,
+            getState().game.infoId
+          )
+        );
+      } catch (err) {
+        throw new Error(err.message);
+      }
+
+      dispatch(
+        // SAVE CHANGES TO REDUX
+        authenticate(
+          userId,
+          token,
+          refreshToken,
+          expirationDate,
+          getState().game.infoId,
+          newUserEmail ? newUserEmail : getState().game.userEmail,
+          newUserName ? newUserName : getState().game.userName,
+          getState().game.highestScore,
+          userImage
+        )
+      );
+
+      const rememberMe = await dispatch(checkStorage());
+
+      if (rememberMe) {
+        // IF UPDATE DATA IN DEVICE STORAGE
+        dispatch(
+          saveDataToStorage(
+            userId,
+            token,
+            refreshToken,
+            expirationDate,
+            getState().game.infoId,
+            newUserEmail ? newUserEmail : getState().game.userEmail,
+            newUserName ? newUserName : getState().game.userName,
+            getState().game.highestScore,
+            userImage
+          )
+        );
+      }
+
+      if (callBackFunc) {
+        callBackFunc();
+      }
+    }
+  };
 };
 
 export const authenticate = (
@@ -382,8 +614,8 @@ const refreshTokenForId = (refreshToken) => {
     if (!response.ok) {
       throw new Error();
     }
-
-    return await response.json();
+    const data = await response.json();
+    return data;
   };
 };
 

@@ -24,11 +24,12 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import MenuReturn from '../components/MenuReturn';
 import ImagePicker from '../components/ImagePicker';
-import { logout, resetPassword } from '../store/auth.actions';
+import { logout, resetPassword, updateUserData } from '../store/auth.actions';
 import {
   setSettingsUserName,
   setSettingsUserEmail,
   setSettings,
+  setSettingsImage,
 } from '../store/temps.actions';
 import {
   validateNameSize,
@@ -60,9 +61,13 @@ const Settings = (props) => {
   );
 
   const oldUserImage = useSelector((state) => state.game.userImage);
-  const [hasUserImageChanged, setHasUserImageChanged] = useState(false);
   const [userImage, setUserImage] = useState(
-    useSelector((state) => state.game.userImage)
+    useSelector((state) => state.temps.settings.userImage)
+      ? useSelector((state) => state.temps.settings.userImage.uri)
+      : useSelector((state) => state.game.userImage)
+  );
+  const [hasUserImageChanged, setHasUserImageChanged] = useState(
+    userImage === oldUserImage ? false : true
   );
 
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -79,12 +84,14 @@ const Settings = (props) => {
 
   const setPickedImage = (pickedImage) => {
     setImagePickerVisible(false);
-    setUserImage(pickedImage.uri);
-    if (oldUserImage != userImage) {
-      setHasUserImageChanged(true);
-    } else {
+    if (oldUserImage === pickedImage.uri) {
       setHasUserImageChanged(false);
+      dispatch(setSettingsImage(null));
+    } else {
+      dispatch(setSettingsImage(pickedImage));
+      setHasUserImageChanged(true);
     }
+    setUserImage(pickedImage.uri);
   };
 
   const changePasswordButton = () => {
@@ -106,7 +113,7 @@ const Settings = (props) => {
 
   // VALIDATION>
   const setName = (name) => {
-    if (name === oldUserName) {
+    if (name.trim().replace(/ /g, '') === oldUserName) {
       setHasUserNameChanged(false);
       dispatch(setSettingsUserName(null));
     } else {
@@ -117,14 +124,14 @@ const Settings = (props) => {
   };
 
   const setEmail = (email) => {
-    if (email === oldUserEmail) {
+    if (email.trim().replace(/ /g, '') === oldUserEmail) {
       setHasUserEmailChanged(false);
       dispatch(setSettingsUserEmail(null));
     } else {
       setHasUserEmailChanged(true);
       dispatch(setSettingsUserEmail(email));
     }
-    setUserEmail(email);
+    setUserEmail(email.trim().replace(/ /g, ''));
   };
 
   const nameOnBlur = () => {
@@ -143,6 +150,13 @@ const Settings = (props) => {
   };
 
   const saveChanges = () => {
+    Alert.alert('Save', 'Would you like to save all changes?', [
+      { text: 'No' },
+      { text: 'Yes', onPress: saveChangesToDb },
+    ]);
+  };
+
+  const saveChangesToDb = async () => {
     if (hasUserNameChanged || hasUserEmailChanged || hasUserImageChanged) {
       if (!validateNameSlur(userName)) {
         Alert.alert("That's offensive...", "Sorry, you can't use this name.", [
@@ -161,6 +175,12 @@ const Settings = (props) => {
           { text: 'Ok' },
         ]);
         return;
+      }
+
+      try {
+        dispatch(updateUserData(discartAndBack));
+      } catch (err) {
+        Alert.alert('Ops..', err.message, [{ text: 'Ok' }]);
       }
     } else {
       Alert.alert('Save', "Well.. looks like there's nothing to be saved.", [
@@ -267,6 +287,7 @@ const Settings = (props) => {
                   onChangeText={(text) => setName(text)}
                   onBlur={nameOnBlur}
                   underlineColor={hasUserNameChanged ? '#61f70a' : '#f9ab8f'}
+                  autoCapitalize={'none'}
                   maxLength={10}
                   Color
                   theme={{
@@ -280,6 +301,7 @@ const Settings = (props) => {
                   value={userEmail}
                   onChangeText={(text) => setEmail(text)}
                   onBlur={emailOnBlur}
+                  autoCapitalize={'none'}
                   underlineColor={hasUserEmailChanged ? '#61f70a' : '#f9ab8f'}
                   theme={{
                     colors: { primary: '#F63A65' },
@@ -472,7 +494,7 @@ const styles = StyleSheet.create({
   changeMessageContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  },
 });
 
 export default Settings;

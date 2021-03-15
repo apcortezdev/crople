@@ -98,8 +98,8 @@ const SignUp = (props) => {
   };
 
   const setEmail = (email) => {
-    dispatch(setSettingsUserEmail(email));
-    setUserEmail(email);
+    dispatch(setSettingsUserEmail(email.trim()));
+    setUserEmail(email.trim());
   };
 
   const formAnimation = Animated.stagger(50, [
@@ -294,7 +294,7 @@ const SignUp = (props) => {
               autoCapitalize="none"
               right={
                 <TextInput.Icon
-                  name={isSecureEntry ? 'eye-off-outline' : 'eye-outline'}
+                  name={isSecureEntry ? 'eye-outline' : 'eye-off-outline'}
                   color="#808080"
                   onPress={() => {
                     setIsSecureEntry(!isSecureEntry);
