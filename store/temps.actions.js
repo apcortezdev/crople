@@ -1,12 +1,12 @@
 import {
-  SET_SETTINGS,
   SET_SETTINGS_NAME,
   SET_SETTINGS_EMAIL,
   SET_SETTINGS_IMAGE,
+  CLEAR_SETTINGS
 } from './actionConstants';
 
-export const setSettings = (settings) => {
-  return { type: SET_SETTINGS, settings: settings };
+export const clearSettings = () => {
+  return { type: CLEAR_SETTINGS };
 };
 
 export const setSettingsUserName = (name) => {

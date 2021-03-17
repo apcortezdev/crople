@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Points from '../components/ScoreBoard';
 import Board from '../components/GameBoard';

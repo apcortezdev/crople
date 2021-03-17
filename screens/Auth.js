@@ -20,10 +20,14 @@ import {
   validateNameSlur,
   validatePasswordSize,
 } from '../components/Validations';
-import * as authActions from '../store/auth.actions';
-import { setSettings } from '../store/temps.actions';
+import { signupOrLogin, validateUserName } from '../store/user.actions';
+import { resetPassword } from '../store/auth.actions';
+import { clearSettings } from '../store/temps.actions';
+import { useTheme } from '@react-navigation/native';
 
 const AuthScreen = (props) => {
+  const { colors, fonts } = useTheme();
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
   const [image, setImage] = useState(null);
@@ -95,20 +99,10 @@ const AuthScreen = (props) => {
         setIsLoadingLogin(false);
         return;
       }
-      const action = authActions.signupOrLogin(
-        'login',
-        userEmail,
-        password,
-        rememberMe
-      );
+      const action = signupOrLogin('login', userEmail, password, rememberMe);
       await dispatch(action).then(
         () => {
-          const settings = {
-            userName: null,
-            userEmail: null,
-            userImage: null,
-          };
-          dispatch(setSettings(settings));
+          dispatch(clearSettings());
         },
         (err) => {
           Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
@@ -124,14 +118,14 @@ const AuthScreen = (props) => {
     }
   };
 
-  const resetPassword = async (userEmail) => {
+  const resetThePassword = async (userEmail) => {
     if (!!!userEmail) {
       Alert.alert('Reset Password', 'Please enter a valid email', [
         { text: 'Ok' },
       ]);
       return;
     }
-    dispatch(authActions.resetPassword(userEmail)).then(
+    dispatch(resetPassword(userEmail)).then(
       () => {
         Alert.alert(
           'Reset Password',
@@ -194,10 +188,10 @@ const AuthScreen = (props) => {
       }
       if (termsAgreement) {
         setIsLoadingSignUp(true);
-        dispatch(authActions.validateUserName(userName)).then(
+        dispatch(validateUserName(userName)).then(
           (isValid) => {
             if (isValid) {
-              const action = authActions.signupOrLogin(
+              const action = signupOrLogin(
                 'signup',
                 email,
                 password,
@@ -207,12 +201,7 @@ const AuthScreen = (props) => {
               );
               dispatch(action).then(
                 () => {
-                  const settings = {
-                    userName: null,
-                    userEmail: null,
-                    userImage: null,
-                  };
-                  dispatch(setSettings(settings));
+                  dispatch(clearSettings());
                 },
                 (err) => {
                   Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
@@ -256,14 +245,14 @@ const AuthScreen = (props) => {
         style={[styles.gradientScreen, translateYGradientAnimation]}
       >
         <LinearGradient
-          colors={['#F63A65', '#f9ab8f']}
+          colors={[colors.accent, colors.primary]}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
       </Animated.View>
       <Animated.View style={[styles.titleHolder, translateYTitleAnimation]}>
-        <Title style={styles.title}>Crople®</Title>
+        <Title style={styles.title(colors, fonts)}>Crople®</Title>
       </Animated.View>
       {isLogIn && (
         <>
@@ -275,7 +264,7 @@ const AuthScreen = (props) => {
             <Login
               onSignUp={signUp}
               onLogIn={logInHandler}
-              onForgotPassword={resetPassword}
+              onForgotPassword={resetThePassword}
             />
           )}
         </>
@@ -325,12 +314,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '60%',
   },
-  title: {
-    fontFamily: 'Lexend',
-    color: '#151515',
+  title: (colors, fonts) => ({
+    fontFamily: fonts.title,
+    color: colors.text,
     fontSize: 30,
     marginBottom: 100,
-  },
+  }),
   activityIndicator: {
     position: 'absolute',
     width: '100%',

@@ -24,11 +24,12 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import MenuReturn from '../components/MenuReturn';
 import ImagePicker from '../components/ImagePicker';
-import { logout, resetPassword, updateUserData } from '../store/auth.actions';
+import { resetPassword } from '../store/auth.actions';
+import { logout, updateUserData } from '../store/user.actions';
 import {
   setSettingsUserName,
   setSettingsUserEmail,
-  setSettings,
+  clearSettings,
   setSettingsImage,
 } from '../store/temps.actions';
 import {
@@ -36,35 +37,37 @@ import {
   validateNameSlur,
   validateIsEmail,
 } from '../components/Validations';
+import { useTheme } from '@react-navigation/native';
 
 const Settings = (props) => {
   const dispatch = useDispatch();
+  const { colors, fonts } = useTheme();
 
-  const oldUserName = useSelector((state) => state.game.userName);
+  const oldUserName = useSelector((state) => state.user.userName);
   const [userName, setUserName] = useState(
     useSelector((state) => state.temps.settings.userName)
       ? useSelector((state) => state.temps.settings.userName)
-      : useSelector((state) => state.game.userName)
+      : useSelector((state) => state.user.userName)
   );
   const [hasUserNameChanged, setHasUserNameChanged] = useState(
     userName === oldUserName ? false : true
   );
 
-  const oldUserEmail = useSelector((state) => state.game.userEmail);
+  const oldUserEmail = useSelector((state) => state.user.userEmail);
   const [userEmail, setUserEmail] = useState(
     useSelector((state) => state.temps.settings.userEmail)
       ? useSelector((state) => state.temps.settings.userEmail)
-      : useSelector((state) => state.game.userEmail)
+      : useSelector((state) => state.user.userEmail)
   );
   const [hasUserEmailChanged, setHasUserEmailChanged] = useState(
     userEmail === oldUserEmail ? false : true
   );
 
-  const oldUserImage = useSelector((state) => state.game.userImage);
+  const oldUserImage = useSelector((state) => state.user.userImage);
   const [userImage, setUserImage] = useState(
     useSelector((state) => state.temps.settings.userImage)
       ? useSelector((state) => state.temps.settings.userImage.uri)
-      : useSelector((state) => state.game.userImage)
+      : useSelector((state) => state.user.userImage)
   );
   const [hasUserImageChanged, setHasUserImageChanged] = useState(
     userImage === oldUserImage ? false : true
@@ -176,12 +179,9 @@ const Settings = (props) => {
         ]);
         return;
       }
-
-      try {
-        dispatch(updateUserData(discartAndBack));
-      } catch (err) {
+      dispatch(updateUserData(discartAndBack)).catch((err) => {
         Alert.alert('Ops..', err.message, [{ text: 'Ok' }]);
-      }
+      });
     } else {
       Alert.alert('Save', "Well.. looks like there's nothing to be saved.", [
         { text: 'Ok' },
@@ -191,12 +191,7 @@ const Settings = (props) => {
   // <VALIDATION
 
   const discartAndBack = () => {
-    const settings = {
-      userName: null,
-      userEmail: null,
-      userImage: null,
-    };
-    dispatch(setSettings(settings));
+    dispatch(clearSettings());
     props.navigation.goBack();
   };
 
@@ -211,7 +206,7 @@ const Settings = (props) => {
     <View style={styles.screen}>
       <View style={styles.gradientScreen}>
         <LinearGradient
-          colors={['#F63A65', '#f9ab8f']}
+          colors={[colors.accent, colors.primary]}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -226,9 +221,9 @@ const Settings = (props) => {
         </LinearGradient>
       </View>
       <View style={styles.settingsView}>
-        <View style={styles.settingsCard}>
-          <View style={styles.sectionTitleContaiter}>
-            <Title style={styles.title}>Profile</Title>
+        <View style={styles.settingsCard(colors)}>
+          <View style={styles.sectionTitleContaiter(colors)}>
+            <Title style={styles.title(colors, fonts)}>Profile</Title>
             {(hasUserNameChanged ||
               hasUserEmailChanged ||
               hasUserImageChanged) && (
@@ -236,9 +231,9 @@ const Settings = (props) => {
                 <FontAwesome5
                   name="exclamation-circle"
                   size={15}
-                  color="#61f70a"
+                  color={colors.highlight}
                 />
-                <Caption style={styles.changeMessage}>Changes pending!</Caption>
+                <Caption style={styles.changeMessage(colors)}>Changes pending!</Caption>
               </View>
             )}
           </View>
@@ -251,11 +246,9 @@ const Settings = (props) => {
                       <Avatar.Icon
                         size={80}
                         icon={() => (
-                          <AntDesign name="user" size={50} color="white" />
+                          <AntDesign name="user" size={50} color={colors.backgroundIcon} />
                         )}
-                        theme={{
-                          colors: { primary: '#F63A65' },
-                        }}
+                        theme={{colors}}
                       />
                     ) : (
                       <Avatar.Image
@@ -263,19 +256,17 @@ const Settings = (props) => {
                         source={{
                           uri: userImage,
                         }}
-                        theme={{
-                          colors: { primary: '#F63A65' },
-                        }}
+                        theme={{colors}}
                       />
                     )}
                     <View
                       style={
                         hasUserImageChanged
-                          ? [styles.badge, styles.changedImage]
-                          : [styles.badge, styles.NotchangedImage]
+                          ? [styles.badge, styles.changedImage(colors)]
+                          : [styles.badge, styles.NotchangedImage(colors)]
                       }
                     >
-                      <MaterialIcons name="edit" size={24} color="white" />
+                      <MaterialIcons name="edit" size={24} color={colors.backgroundIcon} />
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -286,13 +277,10 @@ const Settings = (props) => {
                   value={userName}
                   onChangeText={(text) => setName(text)}
                   onBlur={nameOnBlur}
-                  underlineColor={hasUserNameChanged ? '#61f70a' : '#f9ab8f'}
+                  underlineColor={hasUserNameChanged ? colors.highlight : colors.accent}
                   autoCapitalize={'none'}
                   maxLength={10}
-                  Color
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  theme={{colors}}
                 />
               </View>
               <View style={styles.textInputHolder}>
@@ -302,22 +290,20 @@ const Settings = (props) => {
                   onChangeText={(text) => setEmail(text)}
                   onBlur={emailOnBlur}
                   autoCapitalize={'none'}
-                  underlineColor={hasUserEmailChanged ? '#61f70a' : '#f9ab8f'}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  underlineColor={hasUserEmailChanged ? colors.highlight : colors.accent}
+                  theme={{colors}}
                 />
               </View>
               <View style={styles.sectionButtonPassword}>
                 <TouchableNativeFeedback onPress={changePasswordButton}>
-                  <View style={styles.buttonSave}>
+                  <View style={styles.buttonSave(colors)}>
                     <Text style={styles.text}>Change Password</Text>
                   </View>
                 </TouchableNativeFeedback>
               </View>
             </View>
-            <View style={styles.sectionTitleContaiter}>
-              <Title style={styles.title}>Preferences</Title>
+            <View style={styles.sectionTitleContaiter(colors)}>
+              <Title style={styles.title(colors, fonts)}>Preferences</Title>
             </View>
             <View style={styles.mainSection}>
               <View style={styles.preferencesLine}>
@@ -333,14 +319,14 @@ const Settings = (props) => {
           <View style={styles.sectionButtonSave}>
             <View style={styles.wrapButton}>
               <TouchableNativeFeedback onPress={discartChanges}>
-                <View style={styles.buttonDiscart}>
+                <View style={styles.buttonDiscart(colors)}>
                   <Text style={styles.text}>Discart</Text>
                 </View>
               </TouchableNativeFeedback>
             </View>
             <View style={styles.wrapButton}>
               <TouchableNativeFeedback onPress={saveChanges}>
-                <View style={styles.buttonSave}>
+                <View style={styles.buttonSave(colors)}>
                   <Text style={styles.text}>Save</Text>
                 </View>
               </TouchableNativeFeedback>
@@ -396,14 +382,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  settingsCard: {
-    backgroundColor: 'white',
+  settingsCard: (colors) => ({
+    backgroundColor: colors.card,
     padding: 25,
     opacity: 0.99,
     borderRadius: 30,
     height: Dimensions.get('window').height * 0.83,
     width: Dimensions.get('window').width * 0.9,
-  },
+  }),
   sectionButtonPassword: {
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -414,11 +400,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
-  title: {
-    fontFamily: 'OpenSans',
+  title: (colors, fonts) => ({
+    fontFamily: fonts.regular,
     fontSize: 20,
-    color: '#808080',
-  },
+    color: colors.text,
+  }),
   imageContainer: {
     width: '100%',
     justifyContent: 'center',
@@ -457,40 +443,40 @@ const styles = StyleSheet.create({
   mainSection: {
     marginVertical: 25,
   },
-  buttonSave: {
+  buttonSave: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F63A65',
+    backgroundColor: colors.primary,
     height: 40,
     borderRadius: 5,
-  },
-  buttonDiscart: {
+  }),
+  buttonDiscart: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9ab8f',
+    backgroundColor: colors.accent,
     height: 40,
     borderRadius: 5,
-  },
+  }),
   wrapButton: {
     width: '47%',
   },
-  sectionTitleContaiter: {
+  sectionTitleContaiter: (colors) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  changedImage: {
-    backgroundColor: '#61f70a',
-  },
-  NotchangedImage: {
-    backgroundColor: '#e7e7e7',
-  },
-  changeMessage: {
+    borderBottomColor: colors.border
+  }),
+  changedImage: (colors) => ({
+    backgroundColor: colors.highlight,
+  }),
+  NotchangedImage: (colors) => ({
+    backgroundColor: colors.border,
+  }),
+  changeMessage: (colors) => ({
     marginLeft: 10,
-    color: '#61f70a',
-  },
+    color: colors.highlight,
+  }),
   changeMessageContainer: {
     flexDirection: 'row',
     alignItems: 'center',

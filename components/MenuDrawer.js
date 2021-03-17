@@ -5,26 +5,28 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Avatar, Caption, Divider, Drawer, Title } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
-import * as authActions from '../store/auth.actions';
+import { logout } from '../store/user.actions';
+import { useTheme } from '@react-navigation/native';
 
 const MenuDrawer = (props) => {
-  useEffect(() => {});
+  const { colors, fonts } = useTheme();
 
-  const highestScore = useSelector((state) => state.game.highestScore);
+  const highestScore = useSelector((state) => state.user.highestScore);
   const position = useSelector((state) => state.rank.position);
-  const userName = useSelector((state) => state.game.userName);
-  const image = useSelector((state) => state.game.userImage);
+  const userName = useSelector((state) => state.user.userName);
+
+  const image = useSelector((state) => state.user.userImage);
   const changesPending = useSelector((state) => state.temps.pending);
 
   const dispatch = useDispatch();
 
   const signout = () => {
     props.navigation.closeDrawer();
-    dispatch(authActions.logout());
+    dispatch(logout());
   };
 
   let trophyIcon;
@@ -33,21 +35,21 @@ const MenuDrawer = (props) => {
   switch (position) {
     case 1:
       trophyIcon = 'md-trophy';
-      trophyColor = '#FFD700';
+      trophyColor = colors.trophyColor.first;
       break;
     case 2:
       trophyIcon = 'md-trophy';
-      trophyColor = '#C0C0C0';
+      trophyColor = colors.trophyColor.second;
       break;
     case 3:
     case 4:
     case 5:
       trophyIcon = 'md-trophy';
-      trophyColor = '#CD7F32';
+      trophyColor = colors.trophyColor.third;
       break;
     default:
       trophyIcon = 'md-trophy-outline';
-      trophyColor = '#737373';
+      trophyColor = colors.trophyColor.other;
       break;
   }
 
@@ -60,29 +62,25 @@ const MenuDrawer = (props) => {
               {!!!image ? (
                 <Avatar.Icon
                   size={80}
-                  icon={() => <AntDesign name="user" size={50} color="white" />}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  icon={() => <AntDesign name="user" size={50} color={colors.backgroundIcon} />}
+                  theme={{colors}}
                 />
               ) : (
                 <Avatar.Image
                   size={80}
                   source={{ uri: image }}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  theme={{colors}}
                 />
               )}
             </View>
             <View style={styles.userTitle}>
-              <Title style={styles.title}>@{userName}</Title>
+              <Text style={styles.titleOne(colors, fonts)}>@{userName}</Text>
               <View style={styles.trophy}>
                 <Ionicons name={trophyIcon} size={14} color={trophyColor} />
                 <View style={{ paddingLeft: 5 }}>
-                  <Caption styles={styles.labelStyle}>
+                  <Text style={styles.titleTwo(colors, fonts)}>
                     {position <= 0 ? '\u221E' : position.toString().concat('#')}
-                  </Caption>
+                  </Text>
                 </View>
               </View>
             </View>
@@ -93,7 +91,7 @@ const MenuDrawer = (props) => {
                 <FontAwesome5 name="flag-checkered" size={size} color={color} />
               )}
               label={'Your record: '.concat(highestScore.toString())}
-              labelStyle={styles.labelStyle}
+              labelStyle={{fontFamily: fonts.medium,}}
               onPress={() => {
                 props.navigation.navigate('Ranking');
               }}
@@ -123,13 +121,13 @@ const MenuDrawer = (props) => {
                         <FontAwesome5
                           name="exclamation-circle"
                           size={size}
-                          color="#61f70a"
+                          color={colors.highlight}
                         />
                       </View>
                     )
                   : 'Settings'
               }
-              labelStyle={styles.labelStyle}
+              labelStyle={{fontFamily: fonts.medium,}}
               onPress={() => {
                 props.navigation.navigate('Settings');
               }}
@@ -148,7 +146,7 @@ const MenuDrawer = (props) => {
             />
           )}
           label="Sign Out"
-          labelStyle={styles.labelStyle}
+          labelStyle={{fontFamily: fonts.medium,}}
           onPress={signout}
         />
       </Drawer.Section>
@@ -177,13 +175,16 @@ const styles = StyleSheet.create({
   bottomDrawerSection: {
     marginBottom: 15,
   },
-  labelStyle: {
-    fontFamily: 'OpenSans',
-  },
-  title: {
-    color: 'black',
-    fontFamily: 'OpenSans',
-  },
+  titleOne: (colors, fonts) => ({
+    color: colors.text,
+    fontSize: 18,
+    fontFamily: fonts.medium
+  }),
+  titleTwo: (colors, fonts) => ({
+    color: colors.text,
+    fontSize: 14,
+    fontFamily: fonts.medium
+  })
 });
 
 export default MenuDrawer;

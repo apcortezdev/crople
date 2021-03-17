@@ -15,9 +15,11 @@ import {
   setSettingsUserName,
   setSettingsUserEmail,
 } from '../store/temps.actions';
+import { useTheme } from '@react-navigation/native';
 
 const SignUp = (props) => {
   const dispatch = useDispatch();
+  const { colors, fonts } = useTheme();
 
   const [userName, setUserName] = useState(
     useSelector((state) => state.temps.settings.userName)
@@ -227,9 +229,7 @@ const SignUp = (props) => {
                 <Avatar.Icon
                   size={80}
                   icon={() => <AntDesign name="user" size={50} color="white" />}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  theme={{colors}}
                 />
               ) : (
                 <Avatar.Image
@@ -237,9 +237,7 @@ const SignUp = (props) => {
                   source={{
                     uri: 'data:image/jpg;base64,' + props.image.base64,
                   }}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  theme={{colors}}
                 />
               )}
               <View style={styles.badge}>
@@ -254,12 +252,9 @@ const SignUp = (props) => {
               label="Name (10 letters, no space!)"
               value={userName}
               onChangeText={(text) => setName(text)}
-              selectionColor="#F63A65"
-              underlineColor="#f9ab8f"
+              underlineColor={colors.accent}
               autoCapitalize={'none'}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
+
               maxLength={10}
             />
           </Animated.View>
@@ -268,13 +263,9 @@ const SignUp = (props) => {
               label="Email"
               value={userEmail}
               onChangeText={(text) => setEmail(text)}
-              selectionColor="#F63A65"
-              underlineColor="#f9ab8f"
+              underlineColor={colors.accent}
               keyboardType="email-address"
               autoCapitalize={'none'}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
               autoCapitalize="none"
             />
           </Animated.View>
@@ -283,13 +274,9 @@ const SignUp = (props) => {
               label="Password"
               value={password}
               onChangeText={(text) => setPassword(text)}
-              selectionColor="#F63A65"
-              underlineColor="#f9ab8f"
+              underlineColor={colors.accent}
               secureTextEntry={isSecureEntry}
               autoCapitalize={'none'}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
               minLenth={6}
               autoCapitalize="none"
               right={
@@ -312,14 +299,14 @@ const SignUp = (props) => {
                 onPress={() => {
                   setRememberMe(!rememberMe);
                 }}
-                color="#F63A65"
+                color={colors.accent}
               />
               <TouchableWithoutFeedback
                 onPress={() => {
                   setRememberMe(!rememberMe);
                 }}
               >
-                <Text style={styles.text}>Remember me</Text>
+                <Text style={styles.text(colors)}>Remember me</Text>
               </TouchableWithoutFeedback>
             </View>
             <View style={styles.checkBoxHolder}>
@@ -328,14 +315,14 @@ const SignUp = (props) => {
                 onPress={() => {
                   setTermsAgreement(!termsAgreement);
                 }}
-                color="#F63A65"
+                color={colors.accent}
               />
               <TouchableWithoutFeedback
                 onPress={() => {
                   setTermsAgreement(!termsAgreement);
                 }}
               >
-                <Text style={styles.text}>
+                <Text style={styles.text(colors)}>
                   I agree to the terms & privacy policy
                 </Text>
               </TouchableWithoutFeedback>
@@ -352,13 +339,13 @@ const SignUp = (props) => {
                 termsAgreement
               )}
             >
-              <View style={styles.buttonSignUp}>
+              <View style={styles.buttonSignUp(colors)}>
                 <Text style={styles.textButton}>Sign up</Text>
               </View>
             </TouchableNativeFeedback>
           </Animated.View>
           <Animated.View style={[styles.signUpText, signUpWithAnimation]}>
-            <Text style={styles.text}>Or Sign up with</Text>
+            <Text style={styles.text(colors)}>Or Sign up with</Text>
           </Animated.View>
           <Animated.View
             style={[styles.signUpExternal, signUpExternalAnimation]}
@@ -434,11 +421,11 @@ const styles = StyleSheet.create({
   signUpView: {
     flexDirection: 'row',
   },
-  text: {
+  text: (colors) => ({
     fontFamily: 'OpenSans',
-    color: '#151515',
-    fontSize: 18,
-  },
+    color: colors.text,
+    fontSize: 14,
+  }),
   inputAgreementHolder: {
     alignItems: 'flex-start',
   },
@@ -456,18 +443,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
-  text: {
-    fontFamily: 'OpenSans',
-    color: '#151515',
-    fontSize: 14,
-  },
-  buttonSignUp: {
+  buttonSignUp: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F63A65',
+    backgroundColor: colors.primary,
     height: 40,
     borderRadius: 5,
-  },
+  }),
   buttonFacebook: {
     flexDirection: 'row',
     justifyContent: 'center',

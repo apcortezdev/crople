@@ -1,18 +1,14 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
-import {
-  authenticate,
-  checkStorage,
-  logout,
-  refreshTokenAndAuthenticate,
-} from '../store/auth.actions';
+import { authenticate, checkStorage } from '../store/auth.actions';
+
+import { logout, refreshToken } from '../store/user.actions';
 
 const Startup = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // const userData = dispatch(checkStorage());
     dispatch(checkStorage()).then(
       (userData) => {
         if (!userData) {
@@ -22,13 +18,13 @@ const Startup = (props) => {
 
         if (!userData.token || !userData.refreshToken || !userData.userId) {
           // STORAGE DATA CORRUPTED
+          dispatch(logout());
           props.navigation.navigate('Auth');
           return;
         } else if (new Date(userData.expiryDate) <= new Date()) {
           // TOKEN INVALID
-
           dispatch(
-            refreshTokenAndAuthenticate(userData.refreshToken, userData.userImage, true)
+            refreshToken({ from: 'firebase', authentication: true })
           ).catch(() => {
             // ERROR WHEN REFRESHING
             dispatch(logout());

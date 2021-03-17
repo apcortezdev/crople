@@ -32,7 +32,7 @@ export const fetchRanks = () => {
 
     // SPREADS JSON OBJS INTO ARRAY
     const rankArray = Object.keys(rank).map((key) => {
-      if (key === getState().game.infoId) {
+      if (key === getState().user.infoId) {
         user = { [key]: rank[key] };
       }
       return { [key]: rank[key] };
@@ -53,7 +53,7 @@ export const fetchRanks = () => {
     });
 
     position = sortedRank.findIndex((player) => {
-      return Object.keys(player)[0] === getState().game.infoId;
+      return Object.keys(player)[0] === getState().user.infoId;
     });
 
     dispatch({

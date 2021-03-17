@@ -6,8 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import MenuReturn from '../components/MenuReturn';
 import RankComponent from '../components/RankComponent';
 import * as rankActions from '../store/rank.actions';
+import { useTheme } from '@react-navigation/native';
 
 const Ranking = (props) => {
+  const { colors, fonts } = useTheme();
   const [isRefreshing, setIsRegreshing] = useState(false);
   const rank = useSelector((state) => state.rank.rank);
   const position = useSelector((state) => state.rank.position);
@@ -31,7 +33,7 @@ const Ranking = (props) => {
     <View style={styles.screen}>
       <View style={styles.gradientScreen}>
         <LinearGradient
-          colors={['#F63A65', '#f9ab8f']}
+          colors={[colors.accent, colors.primary]}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -46,14 +48,14 @@ const Ranking = (props) => {
         </LinearGradient>
       </View>
       <View style={styles.rankingContainer}>
-        <View style={styles.rankingPage}>
+        <View style={styles.rankingPage(colors)}>
           <View style={styles.listTitle}>
-            <Text style={styles.text}>This is the top {rank.length} list</Text>
+            <Text style={styles.text(colors, fonts)}>This is the top {rank.length} list</Text>
             <View>
               {position === 0 ? (
-                <Text style={styles.text}>But you are not on it yet!</Text>
+                <Text style={styles.text(colors, fonts)}>But you are not on it yet!</Text>
               ) : (
-                <Text style={styles.text}>
+                <Text style={styles.text(colors, fonts)}>
                   You are in the {position.toString()}# position!
                 </Text>
               )}
@@ -121,15 +123,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '80%',
   },
-  rankingPage: {
-    backgroundColor: 'white',
+  rankingPage: (colors) => ({
+    backgroundColor: colors.card,
     opacity: 0.99,
     borderRadius: 30,
     width: '90%',
     height: '100%',
     alignItems: 'center',
     padding: '5%',
-  },
+  }),
   listTitle: {
     width: '90%',
     alignItems: 'center',
@@ -138,10 +140,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  text: {
-    color: '#1b1b1b',
-    fontFamily: 'OpenSans',
-  },
+  text: (colors, fonts) => ({
+    color: colors.text,
+    fontFamily: fonts.regular,
+  }),
   rankingList: {
     flexShrink: 1,
     flexGrow: 1,

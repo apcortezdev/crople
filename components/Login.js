@@ -12,9 +12,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   setSettingsUserEmail,
 } from '../store/temps.actions';
+import { useTheme } from '@react-navigation/native';
 
 const Login = (props) => {
-
+  const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 
   const [userEmail, setUserEmail] = useState(useSelector((state) => state.temps.settings.userEmail));
@@ -138,12 +139,9 @@ const Login = (props) => {
               label="E-mail"
               value={userEmail}
               onChangeText={(text) => setEmail(text)}
-              underlineColor="#f9ab8f"
+              underlineColor={colors.accent}
               keyboardType="email-address"
               autoCapitalize={"none"}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputPasswordAnimation]}>
@@ -151,12 +149,9 @@ const Login = (props) => {
               label="Password"
               value={password}
               onChangeText={(text) => setPassword(text)}
-              underlineColor="#f9ab8f"
+              underlineColor={colors.accent}
               secureTextEntry={isSecureEntry}
               autoCapitalize={"none"}
-              theme={{
-                colors: { primary: '#F63A65' },
-              }}
               right={
                 <TextInput.Icon
                   name={isSecureEntry ? "eye-outline" : "eye-off-outline"} 
@@ -177,7 +172,7 @@ const Login = (props) => {
                 onPress={() => {
                   setRememberMe(!rememberMe);
                 }}
-                color="#F63A65"
+                color={colors.primary}
               />
               <TouchableWithoutFeedback
                 onPress={() => {
@@ -193,7 +188,7 @@ const Login = (props) => {
           </Animated.View>
           <Animated.View style={[styles.inputHolder, buttonAnimation]}>
             <TouchableNativeFeedback onPress={props.onLogIn.bind(this, userEmail, password, rememberMe)}>
-              <View style={styles.buttonLogIn}>
+              <View style={styles.buttonLogIn(colors)}>
                 <Text style={styles.text}>Login</Text>
               </View>
             </TouchableNativeFeedback>
@@ -259,13 +254,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  buttonLogIn: {
+  buttonLogIn: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F63A65',
+    backgroundColor: colors.primary,
     height: 40,
     borderRadius: 5,
-  },
+  }),
 });
 
 export default Login;

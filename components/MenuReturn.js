@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 const MenuReturn = (props) => {
   return (

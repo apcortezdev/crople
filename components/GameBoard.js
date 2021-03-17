@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as cropleActions from '../store/crople.actions';
+import { checkNewRecord } from '../store/user.actions';
 
 const Board = (props) => {
   const dispatch = useDispatch();
@@ -144,7 +145,7 @@ const Board = (props) => {
     resetBlade.start();
     setCurrentRemainderScale(1);
     resetRemainder(1).start(setIsStartButton(true));
-    dispatch(cropleActions.checkNewRecord());
+    dispatch(checkNewRecord());
   };
 
   useEffect(() => {

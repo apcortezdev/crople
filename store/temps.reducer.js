@@ -1,5 +1,5 @@
 import {
-  SET_SETTINGS,
+  CLEAR_SETTINGS,
   SET_SETTINGS_NAME,
   SET_SETTINGS_EMAIL,
   SET_SETTINGS_IMAGE,
@@ -19,11 +19,8 @@ export default (state = initialState, action) => {
   let pending = false;
 
   switch (action.type) {
-    case SET_SETTINGS:
-      if (!!action.userName || !!action.userEmail || !!action.userImage) {
-        pending = true;
-      }
-      return { ...state, settings: action.settings, pending: pending };
+    case CLEAR_SETTINGS:
+      return initialState;
     case SET_SETTINGS_NAME:
       if (!!action.userName || !!state.settings.userEmail || !!state.settings.userImage) {
         pending = true;
