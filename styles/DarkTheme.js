@@ -3,8 +3,9 @@ export default DarkTheme = {
   mode: 'exact',
   roundness: 5,
   colors: {
-    primary: '#42047E',
-    accent: '#247E8E',
+    primary: '#512DA8',
+    secondary: '#9D00B2',
+    accent: '#AD3D6F',
     background: '#242424',
     backgroundIcon: '#EDEBDC',
     surface: '#FFFFFF',
@@ -16,11 +17,23 @@ export default DarkTheme = {
     highlight: '#4CBB17',
     border: '#4D4D4D',
     notification: '#B2560D',
-    trophyColor: {
+    trophyColors: {
       first: '#FFD700',
       second: '#C0C0C0',
-      thrid: '#CD7F32',
-      other: '#EDEBDC'
+      third: '#CD7F32',
+      outlined: '#EDEBDC',
+      other: '#EDEBDC',
+    },
+    positionColors: {
+      first: '#BD8E02',
+      second: '#848482',
+      third: '#764604',
+      outlined: '#FEEDE7',
+      other: '#4D4D4D',
+    },
+    scoreBoardColors: {
+      primary: '#333333',
+      accent: '#191919',
     }
   },
   fonts: {

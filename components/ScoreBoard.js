@@ -2,8 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, Text } from 'react-native';
 import { useSelector } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@react-navigation/native';
 
 const Points = (props) => {
+  const { colors, fonts } = useTheme();
+
   const score = useSelector((state) => state.game.points);
   const scoreScale = useRef(new Animated.Value(1)).current;
   const scoreAnimatedStyle = {
@@ -26,13 +29,13 @@ const Points = (props) => {
 
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#D4D4D4']}
+      colors={[colors.scoreBoardColors.primary, colors.scoreBoardColors.accent]}
       style={styles.pointsScreen}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
       <Animated.View style={scoreAnimatedStyle}>
-        <Text style={styles.score}>{score}</Text>
+        <Text style={styles.score(colors, fonts)}>{score}</Text>
       </Animated.View>
     </LinearGradient>
   );
@@ -47,11 +50,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 10,
   },
-  score: {
-    fontFamily: 'OpenSans',
+  score: (colors, fonts) => ({
+    fontFamily: fonts.regular,
     fontSize: 35,
-    color: '#151515',
-  },
+    color: colors.text,
+  }),
 });
 
 export default Points;

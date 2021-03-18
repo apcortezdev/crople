@@ -12,8 +12,10 @@ import {
 import { useDispatch } from 'react-redux';
 import * as cropleActions from '../store/crople.actions';
 import { checkNewRecord } from '../store/user.actions';
+import { useTheme } from '@react-navigation/native';
 
 const Board = (props) => {
+  const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 
   let listenedBladeScaleValue;

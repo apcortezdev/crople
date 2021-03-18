@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { authenticate, checkStorage } from '../store/auth.actions';
-
+import { useTheme } from '@react-navigation/native';
 import { logout, refreshToken } from '../store/user.actions';
 
 const Startup = (props) => {
+  const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -59,10 +60,10 @@ const Startup = (props) => {
     <View style={styles.screen}>
       <ActivityIndicator
         size="large"
-        color="#F63A65"
+        color={colors.accent}
         style={{ transform: [{ scale: 1.5 }] }}
       />
-      <Text style={styles.loadingText}>Loading...</Text>
+      <Text style={styles.loadingText(colors, fonts)}>Loading...</Text>
     </View>
   );
 };
@@ -73,12 +74,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: {
+  loadingText: (colors, fonts) => ({
     paddingTop: 35,
-    fontFamily: 'OpenSans',
+    fontFamily: fonts.regular,
     fontSize: 25,
-    color: '#F63A65',
-  },
+    color: colors.accent,
+  }),
 });
 
 export default Startup;

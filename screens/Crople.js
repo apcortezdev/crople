@@ -6,8 +6,10 @@ import MenuBase from '../components/MenuBase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch } from 'react-redux';
 import { fetchRanks } from '../store/rank.actions';
+import { useTheme } from '@react-navigation/native';
 
 const Crople = (props) => {
+  const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -17,8 +19,7 @@ const Crople = (props) => {
   return (
     <View style={styles.fullscreen}>
       <LinearGradient
-        // colors={['#ad3d6f', '#9d00b2', '#512da8']} // DARK
-        colors={['#f9ab8f', '#F63A65']} // LIGHT
+        colors={[colors.accent, colors.secondary, colors.primary]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}

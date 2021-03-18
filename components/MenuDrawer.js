@@ -35,21 +35,21 @@ const MenuDrawer = (props) => {
   switch (position) {
     case 1:
       trophyIcon = 'md-trophy';
-      trophyColor = colors.trophyColor.first;
+      trophyColor = colors.trophyColors.first;
       break;
     case 2:
       trophyIcon = 'md-trophy';
-      trophyColor = colors.trophyColor.second;
+      trophyColor = colors.trophyColors.second;
       break;
     case 3:
     case 4:
     case 5:
       trophyIcon = 'md-trophy';
-      trophyColor = colors.trophyColor.third;
+      trophyColor = colors.trophyColors.third;
       break;
     default:
       trophyIcon = 'md-trophy-outline';
-      trophyColor = colors.trophyColor.other;
+      trophyColor = colors.trophyColors.other;
       break;
   }
 

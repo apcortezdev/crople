@@ -4,7 +4,8 @@ export default LightTheme = {
   roundness: 5,
   colors: {
     primary: '#F63A65',
-    accent: '#F9AB8F',
+    secondary: '#F87F7F',
+    accent: '#FFBE9B',
     background: '#F2F2F2',
     backgroundIcon: '#FFFFFF',
     surface: '#FFFFFF',
@@ -16,12 +17,23 @@ export default LightTheme = {
     highlight: '#61f70a',
     border: '#E7E7E7',
     notification: '#B2560D',
-    textDecoration: '#242424',
-    trophyColor: {
+    trophyColors: {
       first: '#FFD700',
       second: '#C0C0C0',
-      thrid: '#CD7F32',
-      other: 'red'
+      third: '#CD7F32',
+      outlined: '#000000',
+      other: '#EDEBDC',
+    },
+    positionColors: {
+      first: '#FFF6C7',
+      second: '#EFEFEF',
+      third: '#F3E0CE',
+      outlined: '#FEEDE7',
+      other: '#FAFAFA',
+    },
+    scoreBoardColors: {
+      primary: '#FFFFFF',
+      accent: '#D4D4D4',
     }
   },
   fonts: {

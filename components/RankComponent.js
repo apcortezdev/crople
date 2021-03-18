@@ -2,8 +2,10 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Avatar } from 'react-native-paper';
+import { useTheme } from '@react-navigation/native';
 
 const RankComponent = (props) => {
+  const { colors, fonts } = useTheme();
   let userName = null;
   let score = null;
   let image = null;
@@ -20,36 +22,36 @@ const RankComponent = (props) => {
   switch (props.position) {
     case 1:
       trophy = 'md-trophy';
-      trophyColor = '#FFD700';
-      bgColor = '#FFF6C7';
+      trophyColor = colors.trophyColors.first;
+      bgColor = colors.positionColors.first;
       break;
     case 2:
       trophy = 'md-trophy';
-      trophyColor = '#C0C0C0';
-      bgColor = '#EFEFEF';
+      trophyColor = colors.trophyColors.second;
+      bgColor = colors.positionColors.second;
       break;
     case 3:
     case 4:
     case 5:
       trophy = 'md-trophy';
-      trophyColor = '#CD7F32';
-      bgColor = '#F3E0CE';
+      trophyColor = colors.trophyColors.third;
+      bgColor = colors.positionColors.third;
       break;
     default:
       trophy = 'md-trophy-outline';
-      trophyColor = 'black';
+      trophyColor = colors.trophyColors.outlined;;
       props.isHeader
         ? (bgColor = 'transparent')
         : props.isStandOut
-        ? (bgColor = '#FEEDE7')
-        : (bgColor = '#FAFAFA');
+        ? (bgColor = colors.positionColors.outlined)
+        : (bgColor = colors.positionColors.other);
       break;
   }
   return (
     <View style={styles.rankLine(bgColor)}>
       <View style={styles.nameColumn}>
         {props.isHeader ? (
-          <Text style={styles.text}>Player</Text>
+          <Text style={styles.text(colors, fonts)}>Player</Text>
         ) : (
           <View style={styles.userSnap}>
             <View style={styles.avatarContainer}>
@@ -57,29 +59,25 @@ const RankComponent = (props) => {
                 <Avatar.Image
                   size={35}
                   source={{ uri: 'data:image/jpg;base64,' + image }}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
+                  theme={{colors}}
                 />
               ) : (
                 <Avatar.Icon
                   size={35}
-                  theme={{
-                    colors: { primary: '#F63A65' },
-                  }}
-                  icon={() => <AntDesign name="user" size={24} color="white" />}
+                  theme={{colors}}
+                  icon={() => <AntDesign name="user" size={24} color={colors.backgroundIcon} />}
                 />
               )}
             </View>
-            <Text style={styles.text}>{userName}</Text>
+            <Text style={styles.text(colors, fonts)}>{userName}</Text>
           </View>
         )}
       </View>
       <View style={styles.scoreColumn}>
-        <Text style={styles.text}>{props.isHeader ? 'Score' : score}</Text>
+        <Text style={styles.text(colors, fonts)}>{props.isHeader ? 'Score' : score}</Text>
       </View>
       <View style={styles.rankColumn}>
-        <Text style={styles.text}>
+        <Text style={styles.text(colors, fonts)}>
           {props.isHeader ? 'Rank' : props.position}
         </Text>
         {props.isHeader ? null : (
@@ -121,10 +119,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
-  text: {
-    color: '#1b1b1b',
-    fontFamily: 'OpenSans',
-  },
+  text: (colors, fonts) => ({
+    color: colors.text,
+    fontFamily: fonts.regular,
+  }),
 });
 
 export default RankComponent;
