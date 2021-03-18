@@ -17,6 +17,7 @@ export default DarkTheme = {
     highlight: '#4CBB17',
     border: '#4D4D4D',
     notification: '#B2560D',
+    gameDetails: '#151515',
     trophyColors: {
       first: '#FFD700',
       second: '#C0C0C0',
@@ -34,7 +35,11 @@ export default DarkTheme = {
     scoreBoardColors: {
       primary: '#333333',
       accent: '#191919',
-    }
+    },
+    cropleCircle: {
+      primary: '#FFFB8B',
+      accent: '#FFD03D',
+    },
   },
   fonts: {
     title: 'Lexend',

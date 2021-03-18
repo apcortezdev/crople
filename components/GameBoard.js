@@ -172,27 +172,26 @@ const Board = (props) => {
             style={[styles.circleRemainder, remainderAnimatedStyle]}
           >
             <LinearGradient
-              colors={['#FFFB8B', '#FFD03D']}
+              colors={[colors.cropleCircle.primary, colors.cropleCircle.accent]}
               style={styles.gradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             />
           </Animated.View>
-          <Animated.View style={[styles.circleBlade, bladeAnimatedStyle]} />
+          <Animated.View style={[styles.circleBlade(colors), bladeAnimatedStyle]} />
           <Animated.View style={[styles.counter, counterAnimatedStyle]}>
             <Animated.Text
-              style={[styles.counterText, counterTextAnimatedStyle]}
+              style={[styles.counterText(colors, fonts), counterTextAnimatedStyle]}
             >
               {counterText}
             </Animated.Text>
           </Animated.View>
           {isStartButton && (
             <TouchableWithoutFeedback
-              style={styles.startButton}
               onPress={startGame}
             >
               <View style={styles.startBar}>
-                <Text style={styles.start}>Start!</Text>
+                <Text style={styles.start(colors)}>Start!</Text>
               </View>
             </TouchableWithoutFeedback>
           )}
@@ -230,13 +229,13 @@ const styles = StyleSheet.create({
     borderRadius: (Dimensions.get('window').width * 0.7) / 2,
     overflow: 'hidden',
   },
-  circleBlade: {
+  circleBlade: (colors) => ({
     position: 'absolute',
     width: Dimensions.get('window').width * 0.7,
     height: Dimensions.get('window').width * 0.7,
     borderRadius: (Dimensions.get('window').width * 0.7) / 2,
-    borderColor: '#151515',
-  },
+    borderColor: colors.gameDetails,
+  }),
   gradient: {
     flex: 1,
   },
@@ -248,12 +247,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  startButton: {},
-  start: {
+  start: (colors) => ({
     fontFamily: 'Lexend',
     fontSize: 30,
-    color: '#151515',
-  },
+    color: colors.gameDetails,
+  }),
   counter: {
     position: 'absolute',
     justifyContent: 'center',
@@ -264,10 +262,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     elevation: 5,
   },
-  counterText: {
-    fontFamily: 'OpenSans',
-    color: '#151515',
-  },
+  counterText: (colors, fonts) => ({
+    fontFamily: fonts.regular,
+    color: colors.gameDetails,
+  }),
 });
 
 export default Board;

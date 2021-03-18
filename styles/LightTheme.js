@@ -17,6 +17,7 @@ export default LightTheme = {
     highlight: '#61f70a',
     border: '#E7E7E7',
     notification: '#B2560D',
+    gameDetails: '#151515',
     trophyColors: {
       first: '#FFD700',
       second: '#C0C0C0',
@@ -34,7 +35,11 @@ export default LightTheme = {
     scoreBoardColors: {
       primary: '#FFFFFF',
       accent: '#D4D4D4',
-    }
+    },
+    cropleCircle: {
+      primary: '#FFFB8B',
+      accent: '#FFD03D',
+    },
   },
   fonts: {
     title: 'Lexend',
