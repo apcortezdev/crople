@@ -25,6 +25,13 @@ const Board = (props) => {
   const [currentRemainderScale, setCurrentRemainderScale] = useState(1);
   const [counterText, setCounterText] = useState('2');
 
+  const opacityOpen = useRef(new Animated.Value(0)).current;
+  const scaleOpen = useRef(new Animated.Value(0.5)).current;
+  const openStylesAnimation = {
+    opacity: opacityOpen,
+    transform: [{ scale: scaleOpen }],
+  };
+
   const scaleBlade = useRef(new Animated.Value(1.3)).current;
   const scaleRemainder = useRef(new Animated.Value(1)).current;
   const scaleBack = useRef(new Animated.Value(1)).current;
@@ -62,7 +69,7 @@ const Board = (props) => {
   const counterGo = Animated.timing(counterOpacity, {
     toValue: 0,
     duration: 900,
-    useNativeDriver: false,
+    useNativeDriver: true,
   });
 
   const resetBlade = Animated.timing(scaleBlade, {
@@ -78,7 +85,7 @@ const Board = (props) => {
       stiffness: 850,
       damping: 15,
       mass: 0.7,
-      useNativeDriver: false,
+      useNativeDriver: true,
     });
 
   const setNewBack = (value) => {
@@ -87,7 +94,7 @@ const Board = (props) => {
     Animated.timing(opacityBack, {
       toValue: 0,
       duration: 700,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   };
 
@@ -150,6 +157,25 @@ const Board = (props) => {
     dispatch(checkNewRecord());
   };
 
+  const openAnimation = Animated.parallel([
+    Animated.spring(scaleOpen, {
+      toValue: 1,
+      stiffness: 850,
+      damping: 15,
+      mass: 0.7,
+      useNativeDriver: true,
+    }),
+    Animated.timing(opacityOpen, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }),
+  ])
+
+  useEffect(() => {
+    openAnimation.start()
+  }, []);
+
   useEffect(() => {
     const listnerBlade = scaleBlade.addListener(({ value }) => {
       listenedBladeScaleValue = value;
@@ -160,7 +186,7 @@ const Board = (props) => {
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <Animated.View style={[{ flex: 1 }, openStylesAnimation]}>
       <TouchableWithoutFeedback
         onPressIn={focusOnBlade}
         onPressOut={focusOffBlade}
@@ -197,7 +223,7 @@ const Board = (props) => {
           )}
         </View>
       </TouchableWithoutFeedback>
-    </View>
+    </Animated.View>
   );
 };
 

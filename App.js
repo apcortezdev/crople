@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppLoading from 'expo-app-loading';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import CropleNavigator from './navigation/CropleNagivator';
+import Main from './screens/MainScreen';
 
 import { Provider } from 'react-redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
@@ -13,7 +13,6 @@ import rankReducer from './store/rank.reducer';
 import tempsReducer from './store/temps.reducer';
 import userReducer from './store/user.reducer';
 import ReduxThunk from 'redux-thunk';
-
 import { enableScreens } from 'react-native-screens';
 import DarkTheme from './styles/DarkTheme';
 import LightTheme from './styles/LightTheme';
@@ -45,8 +44,8 @@ export default function App() {
     return (
       <Provider store={store}>
         <NavigationContainer theme={colorScheme}>
-        {/* <NavigationContainer> */}
-          <CropleNavigator />
+          {/* <CropleNavigator /> */}
+          <Main />
           <StatusBar translucent={true} />
         </NavigationContainer>
       </Provider>

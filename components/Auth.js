@@ -9,17 +9,16 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Title } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
-import ImagePicker from '../components/ImagePicker';
-import Login from '../components/Login';
-import SignUp from '../components/SignUp';
+import ImagePicker from './ImagePicker';
+import Login from './Login';
+import SignUp from './SignUp';
 import {
   validateIsEmail,
   validateNameSize,
   validateNameSlur,
   validatePasswordSize,
-} from '../components/Validations';
+} from './Validations';
 import { signupOrLogin, validateUserName } from '../store/user.actions';
 import { resetPassword } from '../store/auth.actions';
 import { clearSettings } from '../store/temps.actions';
@@ -37,56 +36,16 @@ const AuthScreen = (props) => {
   const [isLoadingSignUp, setIsLoadingSignUp] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
 
-  const translateYGradient = useRef(new Animated.Value(0)).current;
-  const translateYGradientAnimation = {
-    transform: [{ translateY: translateYGradient }, { scaleX: 1.5 }],
-  };
-
-  const translateYTitle = useRef(new Animated.Value(0)).current;
-  const translateYTitleAnimation = {
-    transform: [{ translateY: translateYTitle }],
-  };
-
-  const signUpAnimation = Animated.parallel([
-    Animated.timing(translateYGradient, {
-      toValue: -480,
-      duration: 300,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: true,
-    }),
-    Animated.timing(translateYTitle, {
-      toValue: -110,
-      duration: 300,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: true,
-    }),
-  ]);
-
   const signUp = () => {
     setIsLogIn(false);
-    signUpAnimation.start();
-    setTimeout(() => setIsSignUp(true), 30);
+    props.onSignUp();
+    setIsSignUp(true);
   };
 
   const backToLogIn = () => {
     setIsSignUp(false);
+    props.onLogin();
     setIsLogIn(true);
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(translateYGradient, {
-          toValue: 0,
-          duration: 200,
-          easing: Easing.out(Easing.exp),
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateYTitle, {
-          toValue: 0,
-          duration: 200,
-          easing: Easing.out(Easing.exp),
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start();
   };
 
   const logInHandler = async (userEmail, password, rememberMe) => {
@@ -241,19 +200,6 @@ const AuthScreen = (props) => {
 
   return (
     <View style={styles.screen}>
-      <Animated.View
-        style={[styles.gradientScreen, translateYGradientAnimation]}
-      >
-        <LinearGradient
-          colors={[colors.accent, colors.primary]}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-      </Animated.View>
-      <Animated.View style={[styles.titleHolder, translateYTitleAnimation]}>
-        <Title style={styles.title(colors, fonts)}>Crople®</Title>
-      </Animated.View>
       {isLogIn && (
         <>
           {isLoadingLogin ? (
@@ -265,6 +211,7 @@ const AuthScreen = (props) => {
               onSignUp={signUp}
               onLogIn={logInHandler}
               onForgotPassword={resetThePassword}
+              onGoBack={props.onGoBack}
             />
           )}
         </>

@@ -1,29 +1,18 @@
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 const MenuBase = (props) => {
+  const { colors } = useTheme();
   return (
     <View style={styles.menuBase}>
-      <Entypo name="menu" size={30} color="black" onPress={props.onPressMenu} />
-
-      <Text style={styles.logo}>Crople</Text>
-      <MaterialCommunityIcons
-        name="podium"
-        size={25}
-        color="black"
-        onPress={props.onPressRanking}
-      />
+      <Entypo name="menu" size={30} color={colors.gameDetails} onPress={props.onPressMenu} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  logo: {
-    fontFamily: 'Lexend',
-    fontSize: 20,
-    color: '#151515',
-  },
   menuBase: {
     flexDirection: 'row',
     alignItems: 'center',

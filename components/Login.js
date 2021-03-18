@@ -9,16 +9,17 @@ import {
 } from 'react-native';
 import { Checkbox, TextInput } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  setSettingsUserEmail,
-} from '../store/temps.actions';
+import { setSettingsUserEmail } from '../store/temps.actions';
 import { useTheme } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const Login = (props) => {
   const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 
-  const [userEmail, setUserEmail] = useState(useSelector((state) => state.temps.settings.userEmail));
+  const [userEmail, setUserEmail] = useState(
+    useSelector((state) => state.temps.settings.userEmail)
+  );
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isSecureEntry, setIsSecureEntry] = useState(true);
@@ -141,7 +142,7 @@ const Login = (props) => {
               onChangeText={(text) => setEmail(text)}
               underlineColor={colors.accent}
               keyboardType="email-address"
-              autoCapitalize={"none"}
+              autoCapitalize={'none'}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputPasswordAnimation]}>
@@ -151,10 +152,10 @@ const Login = (props) => {
               onChangeText={(text) => setPassword(text)}
               underlineColor={colors.accent}
               secureTextEntry={isSecureEntry}
-              autoCapitalize={"none"}
+              autoCapitalize={'none'}
               right={
                 <TextInput.Icon
-                  name={isSecureEntry ? "eye-outline" : "eye-off-outline"} 
+                  name={isSecureEntry ? 'eye-outline' : 'eye-off-outline'}
                   color="#808080"
                   onPress={() => {
                     setIsSecureEntry(!isSecureEntry);
@@ -182,24 +183,41 @@ const Login = (props) => {
                 <Text style={styles.text}>Remember me</Text>
               </TouchableWithoutFeedback>
             </View>
-            <TouchableWithoutFeedback onPress={props.onForgotPassword.bind(this, userEmail)}>
+            <TouchableWithoutFeedback
+              onPress={props.onForgotPassword.bind(this, userEmail)}
+            >
               <Text style={styles.text}>Forgot Password?</Text>
             </TouchableWithoutFeedback>
           </Animated.View>
           <Animated.View style={[styles.inputHolder, buttonAnimation]}>
-            <TouchableNativeFeedback onPress={props.onLogIn.bind(this, userEmail, password, rememberMe)}>
+            <TouchableNativeFeedback
+              onPress={props.onLogIn.bind(
+                this,
+                userEmail,
+                password,
+                rememberMe
+              )}
+            >
               <View style={styles.buttonLogIn(colors)}>
                 <Text style={styles.text}>Login</Text>
               </View>
             </TouchableNativeFeedback>
           </Animated.View>
           <Animated.View style={[styles.signUpView, signUpViewAnimation]}>
-            <Text style={styles.text}>New?</Text>
-            <TouchableWithoutFeedback onPress={props.onSignUp}>
-              <View style={styles.signUpTextView}>
-                <Text style={styles.signUpText}>Sign Up Now!</Text>
-              </View>
-            </TouchableWithoutFeedback>
+            <View style={styles.lastLine}>
+              <Text style={styles.text}>New?</Text>
+              <TouchableWithoutFeedback onPress={props.onSignUp}>
+                <View style={styles.signUpTextView}>
+                  <Text style={styles.signUpText}>Sign Up Now!</Text>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+            <MaterialIcons
+              name="keyboard-backspace"
+              size={34}
+              color={colors.gameDetails}
+              onPress={props.onGoBack}
+            />
           </Animated.View>
         </View>
       </Animated.View>
@@ -211,13 +229,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     position: 'absolute',
+    top: '35%',
     width: '100%',
-    height: '100%',
+    height: '65%',
   },
   formHolder: {
     width: '100%',
     height: '100%',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   form: {
@@ -233,8 +251,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signUpView: {
-    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
     fontFamily: 'OpenSans',
@@ -257,10 +275,14 @@ const styles = StyleSheet.create({
   buttonLogIn: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.accent,
     height: 40,
     borderRadius: 5,
   }),
+  lastLine: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
 });
 
 export default Login;

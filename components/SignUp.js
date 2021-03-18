@@ -229,7 +229,7 @@ const SignUp = (props) => {
                 <Avatar.Icon
                   size={80}
                   icon={() => <AntDesign name="user" size={50} color="white" />}
-                  theme={{colors}}
+                  theme={{ colors: { primary: colors.cropleCircle.accent } }}
                 />
               ) : (
                 <Avatar.Image
@@ -237,7 +237,7 @@ const SignUp = (props) => {
                   source={{
                     uri: 'data:image/jpg;base64,' + props.image.base64,
                   }}
-                  theme={{colors}}
+                  theme={{ colors: { primary: colors.cropleCircle.accent } }}
                 />
               )}
               <View style={styles.badge}>
@@ -254,7 +254,6 @@ const SignUp = (props) => {
               onChangeText={(text) => setName(text)}
               underlineColor={colors.accent}
               autoCapitalize={'none'}
-
               maxLength={10}
             />
           </Animated.View>
@@ -372,14 +371,12 @@ const SignUp = (props) => {
             </Animated.View>
           </Animated.View>
           <Animated.View style={[styles.backArrowView, arrowAnimation]}>
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <MaterialIcons
-                name="keyboard-backspace"
-                size={34}
-                color="black"
-                onPress={props.onPressBack}
-              />
-            </TouchableWithoutFeedback>
+            <MaterialIcons
+              name="keyboard-backspace"
+              size={34}
+              color={colors.text}
+              onPress={props.onPressBack}
+            />
           </Animated.View>
         </View>
       </View>

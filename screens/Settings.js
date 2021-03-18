@@ -1,6 +1,6 @@
 import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -10,6 +10,7 @@ import {
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
   View,
+  Animated
 } from 'react-native';
 import {
   Avatar,
@@ -38,10 +39,18 @@ import {
   validateIsEmail,
 } from '../components/Validations';
 import { useTheme } from '@react-navigation/native';
+import MenuBase from '../components/MenuBase';
 
 const Settings = (props) => {
   const dispatch = useDispatch();
   const { colors, fonts } = useTheme();
+
+  const opacityOpen = useRef(new Animated.Value(0)).current;
+  const scaleOpen = useRef(new Animated.Value(0.9)).current;
+  const openStylesAnimation = {
+    opacity: opacityOpen,
+    transform: [{ scale: scaleOpen }],
+  };
 
   const oldUserName = useSelector((state) => state.user.userName);
   const [userName, setUserName] = useState(
@@ -76,6 +85,19 @@ const Settings = (props) => {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
+
+  const openAnimation = Animated.parallel([
+    Animated.timing(scaleOpen, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }),
+    Animated.timing(opacityOpen, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }),
+  ])
 
   const setImage = () => {
     setImagePickerVisible(true);
@@ -202,26 +224,15 @@ const Settings = (props) => {
     ]);
   };
 
+  useEffect(() => {
+    openAnimation.start();
+  }, []);
+
   return (
     <View style={styles.screen}>
-      <View style={styles.gradientScreen}>
-        <LinearGradient
-          colors={[colors.accent, colors.primary]}
-          style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.menuScreen}>
-            <MenuReturn
-              onPressBack={() => {
-                props.navigation.goBack();
-              }}
-            />
-          </View>
-        </LinearGradient>
-      </View>
+      <MenuBase onPressMenu={props.onGoBack} />
       <View style={styles.settingsView}>
-        <View style={styles.settingsCard(colors)}>
+        <Animated.View style={[styles.settingsCard(colors), openStylesAnimation]}>
           <View style={styles.sectionTitleContaiter(colors)}>
             <Title style={styles.title(colors, fonts)}>Profile</Title>
             {(hasUserNameChanged ||
@@ -233,7 +244,9 @@ const Settings = (props) => {
                   size={15}
                   color={colors.highlight}
                 />
-                <Caption style={styles.changeMessage(colors)}>Changes pending!</Caption>
+                <Caption style={styles.changeMessage(colors)}>
+                  Changes pending!
+                </Caption>
               </View>
             )}
           </View>
@@ -246,9 +259,13 @@ const Settings = (props) => {
                       <Avatar.Icon
                         size={80}
                         icon={() => (
-                          <AntDesign name="user" size={50} color={colors.backgroundIcon} />
+                          <AntDesign
+                            name="user"
+                            size={50}
+                            color={colors.backgroundIcon}
+                          />
                         )}
-                        theme={{colors}}
+                        theme={{ colors }}
                       />
                     ) : (
                       <Avatar.Image
@@ -256,7 +273,7 @@ const Settings = (props) => {
                         source={{
                           uri: userImage,
                         }}
-                        theme={{colors}}
+                        theme={{ colors }}
                       />
                     )}
                     <View
@@ -266,7 +283,11 @@ const Settings = (props) => {
                           : [styles.badge, styles.NotchangedImage(colors)]
                       }
                     >
-                      <MaterialIcons name="edit" size={24} color={colors.backgroundIcon} />
+                      <MaterialIcons
+                        name="edit"
+                        size={24}
+                        color={colors.backgroundIcon}
+                      />
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -277,10 +298,12 @@ const Settings = (props) => {
                   value={userName}
                   onChangeText={(text) => setName(text)}
                   onBlur={nameOnBlur}
-                  underlineColor={hasUserNameChanged ? colors.highlight : colors.accent}
+                  underlineColor={
+                    hasUserNameChanged ? colors.highlight : colors.accent
+                  }
                   autoCapitalize={'none'}
                   maxLength={10}
-                  theme={{colors}}
+                  theme={{ colors }}
                 />
               </View>
               <View style={styles.textInputHolder}>
@@ -290,8 +313,10 @@ const Settings = (props) => {
                   onChangeText={(text) => setEmail(text)}
                   onBlur={emailOnBlur}
                   autoCapitalize={'none'}
-                  underlineColor={hasUserEmailChanged ? colors.highlight : colors.accent}
-                  theme={{colors}}
+                  underlineColor={
+                    hasUserEmailChanged ? colors.highlight : colors.accent
+                  }
+                  theme={{ colors }}
                 />
               </View>
               <View style={styles.sectionButtonPassword}>
@@ -302,20 +327,20 @@ const Settings = (props) => {
                 </TouchableNativeFeedback>
               </View>
             </View>
-            <View style={styles.sectionTitleContaiter(colors)}>
-              <Title style={styles.title(colors, fonts)}>Preferences</Title>
-            </View>
-            <View style={styles.mainSection}>
-              <View style={styles.preferencesLine}>
-                <Title style={styles.titlePreference}>Dark Theme</Title>
-                <Switch
-                  value={isDarkTheme}
-                  onValueChange={() => setIsDarkTheme(!isDarkTheme)}
-                  color="#F63A65"
-                />
-              </View>
-            </View>
           </ScrollView>
+          <View style={styles.sectionTitleContaiter(colors)}>
+            <Title style={styles.title(colors, fonts)}>Preferences</Title>
+          </View>
+          <View style={styles.mainSection}>
+            <View style={styles.preferencesLine}>
+              <Title style={styles.titlePreference}>Dark Theme</Title>
+              <Switch
+                value={isDarkTheme}
+                onValueChange={() => setIsDarkTheme(!isDarkTheme)}
+                color="#F63A65"
+              />
+            </View>
+          </View>
           <View style={styles.sectionButtonSave}>
             <View style={styles.wrapButton}>
               <TouchableNativeFeedback onPress={discartChanges}>
@@ -332,7 +357,7 @@ const Settings = (props) => {
               </TouchableNativeFeedback>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
       <Dialog
         visible={isDialogVisible}
@@ -362,43 +387,44 @@ const Settings = (props) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  gradientScreen: {
-    height: Dimensions.get('window').height * 0.3,
-    borderBottomStartRadius: 30,
-    borderBottomEndRadius: 30,
-    overflow: 'hidden',
-  },
-  gradient: {
-    flex: 1,
-  },
-  menuScreen: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
     paddingHorizontal: Dimensions.get('window').width * 0.03,
     paddingTop: Dimensions.get('window').height * 0.03,
   },
   settingsView: {
-    position: 'absolute',
-    top: Dimensions.get('window').height * 0.15,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
     width: '100%',
+    height: '90%',
   },
   settingsCard: (colors) => ({
     backgroundColor: colors.card,
-    padding: 25,
     opacity: 0.99,
     borderRadius: 30,
-    height: Dimensions.get('window').height * 0.83,
-    width: Dimensions.get('window').width * 0.9,
+    width: '90%',
+    height: '100%',
+    alignItems: 'center',
+    padding: '5%',
   }),
+  settingsScrollView: {
+    width: '100%',
+  },
   sectionButtonPassword: {
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
   sectionButtonSave: {
+    width: '100%',
     justifyContent: 'space-between',
     flexDirection: 'row',
     paddingHorizontal: 15,
     paddingVertical: 10,
+  },
+  wrapButton: {
+    width: '47%',
   },
   title: (colors, fonts) => ({
     fontFamily: fonts.regular,
@@ -441,6 +467,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   mainSection: {
+    width: '100%',
     marginVertical: 25,
   },
   buttonSave: (colors) => ({
@@ -457,15 +484,13 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 5,
   }),
-  wrapButton: {
-    width: '47%',
-  },
   sectionTitleContaiter: (colors) => ({
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: colors.border
+    borderBottomColor: colors.border,
   }),
   changedImage: (colors) => ({
     backgroundColor: colors.highlight,
