@@ -10,7 +10,7 @@ import {
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
   View,
-  Animated
+  Animated,
 } from 'react-native';
 import {
   Avatar,
@@ -40,6 +40,7 @@ import {
 } from '../components/Validations';
 import { useTheme } from '@react-navigation/native';
 import MenuBase from '../components/MenuBase';
+import { setTheme } from '../store/crople.actions';
 
 const Settings = (props) => {
   const dispatch = useDispatch();
@@ -82,7 +83,9 @@ const Settings = (props) => {
     userImage === oldUserImage ? false : true
   );
 
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [isDarkThemeOn, setisDarkThemeOn] = useState(false);
+  const [isDarkThemeOff, setisDarkThemeOff] = useState(false);
+  const [isDarkThemeAuto, setisDarkThemeAuto] = useState(true);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
 
@@ -97,7 +100,7 @@ const Settings = (props) => {
       duration: 200,
       useNativeDriver: true,
     }),
-  ])
+  ]);
 
   const setImage = () => {
     setImagePickerVisible(true);
@@ -224,6 +227,46 @@ const Settings = (props) => {
     ]);
   };
 
+  const setDarkOn = () => {
+    if (isDarkThemeOn) {
+      setisDarkThemeOn(false);
+      setisDarkThemeOff(false);
+      setisDarkThemeAuto(true);
+      dispatch(setTheme('auto'));
+    } else {
+      setisDarkThemeOn(true);
+      setisDarkThemeOff(false);
+      setisDarkThemeAuto(false);
+      dispatch(setTheme('on'));
+    }
+  };
+  const setDarkOff = () => {
+    if (isDarkThemeOff) {
+      setisDarkThemeOn(false);
+      setisDarkThemeOff(false);
+      setisDarkThemeAuto(true);
+      dispatch(setTheme('auto'));
+    } else {
+      setisDarkThemeOn(false);
+      setisDarkThemeOff(true);
+      setisDarkThemeAuto(false);
+      dispatch(setTheme('off'));
+    }
+  };
+  const setDarkAuto = () => {
+    if (isDarkThemeAuto) {
+      setisDarkThemeOn(true);
+      setisDarkThemeOff(false);
+      setisDarkThemeAuto(false);
+      dispatch(setTheme('on'));
+    } else {
+      setisDarkThemeOn(false);
+      setisDarkThemeOff(false);
+      setisDarkThemeAuto(true);
+      dispatch(setTheme('auto'));
+    }
+  };
+
   useEffect(() => {
     openAnimation.start();
   }, []);
@@ -232,7 +275,9 @@ const Settings = (props) => {
     <View style={styles.screen}>
       <MenuBase onPressMenu={props.onGoBack} />
       <View style={styles.settingsView}>
-        <Animated.View style={[styles.settingsCard(colors), openStylesAnimation]}>
+        <Animated.View
+          style={[styles.settingsCard(colors), openStylesAnimation]}
+        >
           <View style={styles.sectionTitleContaiter(colors)}>
             <Title style={styles.title(colors, fonts)}>Profile</Title>
             {(hasUserNameChanged ||
@@ -332,11 +377,28 @@ const Settings = (props) => {
             <Title style={styles.title(colors, fonts)}>Preferences</Title>
           </View>
           <View style={styles.mainSection}>
+            <Title style={styles.titlePreference}>Dark Theme</Title>
             <View style={styles.preferencesLine}>
-              <Title style={styles.titlePreference}>Dark Theme</Title>
+              <Title style={styles.titlePreference}>On</Title>
               <Switch
-                value={isDarkTheme}
-                onValueChange={() => setIsDarkTheme(!isDarkTheme)}
+                value={isDarkThemeOn}
+                onValueChange={setDarkOn}
+                color="#F63A65"
+              />
+            </View>
+            <View style={styles.preferencesLine}>
+              <Title style={styles.titlePreference}>Off</Title>
+              <Switch
+                value={isDarkThemeOff}
+                onValueChange={setDarkOff}
+                color="#F63A65"
+              />
+            </View>
+            <View style={styles.preferencesLine}>
+              <Title style={styles.titlePreference}>Auto</Title>
+              <Switch
+                value={isDarkThemeAuto}
+                onValueChange={setDarkAuto}
                 color="#F63A65"
               />
             </View>

@@ -1,15 +1,16 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useRef, useState } from 'react';
+import { useTheme } from '@react-navigation/native';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Animated,
   Dimensions,
-  Easing,
   StyleSheet,
-  View,
+  View
 } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { resetPassword } from '../store/auth.actions';
+import { clearSettings } from '../store/temps.actions';
+import { signupOrLogin, validateUserName } from '../store/user.actions';
 import ImagePicker from './ImagePicker';
 import Login from './Login';
 import SignUp from './SignUp';
@@ -17,12 +18,8 @@ import {
   validateIsEmail,
   validateNameSize,
   validateNameSlur,
-  validatePasswordSize,
+  validatePasswordSize
 } from './Validations';
-import { signupOrLogin, validateUserName } from '../store/user.actions';
-import { resetPassword } from '../store/auth.actions';
-import { clearSettings } from '../store/temps.actions';
-import { useTheme } from '@react-navigation/native';
 
 const AuthScreen = (props) => {
   const { colors, fonts } = useTheme();

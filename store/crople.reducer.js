@@ -1,8 +1,8 @@
-import { ADD_POINT, AUTHENTICATE, SET_POINTS } from './actionConstants';
+import { ADD_POINT, AUTHENTICATE, SET_POINTS, SET_THEME } from './actionConstants';
 
 const initialState = {
   points: 0,
-  darkTheme: false,
+  darkTheme: 'on',
 };
 
 export default (state = initialState, action) => {
@@ -13,6 +13,7 @@ export default (state = initialState, action) => {
     case SET_POINTS:
       return { ...state, points: action.points };
     case AUTHENTICATE:
+    case SET_THEME:
       return {
         ...state,
         darkTheme: action.darkTheme,

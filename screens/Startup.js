@@ -1,85 +1,49 @@
-import React, { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { authenticate, checkStorage } from '../store/auth.actions';
-import { useTheme } from '@react-navigation/native';
-import { logout, refreshToken } from '../store/user.actions';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { startAsync } from '../store/crople.actions';
+import { useColorScheme } from 'react-native';
+import { useFonts } from 'expo-font';
+import DarkTheme from '../styles/DarkTheme';
+import LightTheme from '../styles/LightTheme';
+import { StatusBar } from 'expo-status-bar';
+import AppLoading from 'expo-app-loading';
+import { NavigationContainer } from '@react-navigation/native';
+import Main from './MainScreen';
 
 const Startup = (props) => {
-  const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
+  const [isReady, setIsReady] = useState(false);
+  const isDark = useSelector((state) => state.game.darkTheme);
+  const scheme = useColorScheme();
 
-  useEffect(() => {
-    dispatch(checkStorage()).then(
-      (userData) => {
-        if (!userData) {
-          props.navigation.navigate('Auth');
-          return;
-        }
+  let [fontsLoaded] = useFonts({
+    Lexend: require('../assets/fonts/LexendMega-Regular.ttf'),
+    OpenSans: require('../assets/fonts/OpenSans-Regular.ttf'),
+  });
 
-        if (!userData.token || !userData.refreshToken || !userData.userId) {
-          // STORAGE DATA CORRUPTED
-          dispatch(logout());
-          props.navigation.navigate('Auth');
-          return;
-        } else if (new Date(userData.expiryDate) <= new Date()) {
-          // TOKEN INVALID
-          dispatch(
-            refreshToken({ from: 'firebase', authentication: true })
-          ).catch(() => {
-            // ERROR WHEN REFRESHING
-            dispatch(logout());
-            props.navigation.navigate('Auth');
-            return;
-          });
-          return;
-        }
-        // TOKEN STILL VALID
-        dispatch(
-          authenticate(
-            userData.userId,
-            userData.token,
-            userData.refreshToken,
-            new Date(userData.expiryDate),
-            userData.infoId,
-            userData.userEmail,
-            userData.userName,
-            userData.highestScore,
-            userData.userImage
-          )
-        );
-      },
-      () => {
-        props.navigation.navigate('Auth');
-        return;
-      }
+  dispatch(startAsync()).then(() => {
+    setIsReady(true);
+  });
+
+  const colorScheme =
+    isDark === 'auto'
+      ? scheme === 'dark'
+        ? DarkTheme
+        : LightTheme
+      : isDark === 'on'
+      ? DarkTheme
+      : LightTheme;
+
+  if (!fontsLoaded || !isReady) {
+    return <AppLoading />;
+  } else {
+    return (
+      <NavigationContainer theme={colorScheme}>
+        <Main />
+        <StatusBar translucent={true} />
+      </NavigationContainer>
     );
-  }, [dispatch]);
-
-  return (
-    <View style={styles.screen}>
-      <ActivityIndicator
-        size="large"
-        color={colors.accent}
-        style={{ transform: [{ scale: 1.5 }] }}
-      />
-      <Text style={styles.loadingText(colors, fonts)}>Loading...</Text>
-    </View>
-  );
+  }
 };
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: (colors, fonts) => ({
-    paddingTop: 35,
-    fontFamily: fonts.regular,
-    fontSize: 25,
-    color: colors.accent,
-  }),
-});
 
 export default Startup;
