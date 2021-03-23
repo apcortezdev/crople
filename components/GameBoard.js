@@ -14,7 +14,7 @@ import * as cropleActions from '../store/crople.actions';
 import { checkNewRecord } from '../store/user.actions';
 import { useTheme } from '@react-navigation/native';
 
-const Board = (props) => {
+const Board = () => {
   const { colors, fonts } = useTheme();
   const dispatch = useDispatch();
 

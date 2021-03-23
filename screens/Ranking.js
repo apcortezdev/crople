@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import MenuBase from '../components/MenuBase';
 import RankComponent from '../components/RankComponent';
 import * as rankActions from '../store/rank.actions';
+import { PropTypes } from 'prop-types';
 
 const Ranking = (props) => {
   const { colors, fonts } = useTheme();
@@ -166,5 +167,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+Ranking.propTypes = {
+  onMenu: PropTypes.func.isRequired,
+};
 
 export default Ranking;

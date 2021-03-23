@@ -8,7 +8,7 @@ import Ranking from './Ranking';
 import Options from './Options';
 import { Title } from 'react-native-paper';
 
-const AuthScreen = (props) => {
+const AuthScreen = () => {
   const { colors, fonts } = useTheme();
 
   const [isMenu, setIsMenu] = useState(true);

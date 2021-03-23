@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { startAsync } from '../store/crople.actions';
 import { useColorScheme } from 'react-native';
@@ -10,14 +10,16 @@ import AppLoading from 'expo-app-loading';
 import { NavigationContainer } from '@react-navigation/native';
 import Main from './MainScreen';
 
-const Startup = (props) => {
+const Startup = () => {
   const dispatch = useDispatch();
   const [isReady, setIsReady] = useState(false);
   const isDark = useSelector((state) => state.game.darkTheme);
   const scheme = useColorScheme();
 
   let [fontsLoaded] = useFonts({
+    // eslint-disable-next-line no-undef
     Lexend: require('../assets/fonts/LexendMega-Regular.ttf'),
+    // eslint-disable-next-line no-undef
     OpenSans: require('../assets/fonts/OpenSans-Regular.ttf'),
   });
 

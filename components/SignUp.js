@@ -16,10 +16,11 @@ import {
   setSettingsUserEmail,
 } from '../store/temps.actions';
 import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const SignUp = (props) => {
   const dispatch = useDispatch();
-  const { colors, fonts } = useTheme();
+  const { colors } = useTheme();
 
   const [userName, setUserName] = useState(
     useSelector((state) => state.temps.settings.userName)
@@ -225,7 +226,7 @@ const SignUp = (props) => {
         <Animated.View style={[styles.avatarHolder, avatarAnimation]}>
           <TouchableWithoutFeedback onPress={props.onSetImage}>
             <View>
-              {!!!props.image ? (
+              {!props.image ? (
                 <Avatar.Icon
                   size={80}
                   icon={() => <AntDesign name="user" size={50} color="white" />}
@@ -264,7 +265,6 @@ const SignUp = (props) => {
               onChangeText={(text) => setEmail(text)}
               underlineColor={colors.accent}
               keyboardType="email-address"
-              autoCapitalize={'none'}
               autoCapitalize="none"
             />
           </Animated.View>
@@ -275,7 +275,6 @@ const SignUp = (props) => {
               onChangeText={(text) => setPassword(text)}
               underlineColor={colors.accent}
               secureTextEntry={isSecureEntry}
-              autoCapitalize={'none'}
               minLenth={6}
               autoCapitalize="none"
               right={
@@ -487,5 +486,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#e7e7e7',
   },
 });
+
+SignUp.propTypes = {
+  onSetImage: PropTypes.func.isRequired,
+  image: PropTypes.object.isRequired,
+  onSignUpWithEmail: PropTypes.func.isRequired,
+  onPressBack: PropTypes.func.isRequired,
+}
 
 export default SignUp;

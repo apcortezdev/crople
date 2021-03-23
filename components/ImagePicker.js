@@ -1,9 +1,10 @@
 import { Fontisto } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 import { Caption, Modal } from 'react-native-paper';
+import { PropTypes } from 'prop-types';
 
 const ImgPicker = (props) => {
   const getPermissionGalery = async () => {
@@ -115,5 +116,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+ImgPicker.propTypes = {
+  onSetImage: PropTypes.func.isRequired,
+  visible: PropTypes.bool.isRequired,
+  onDismiss: PropTypes.func.isRequired,
+}
 
 export default ImgPicker;

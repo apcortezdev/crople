@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const SwitchComponent = (props) => {
   const { colors } = useTheme();
@@ -74,5 +75,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   }),
 });
+
+SwitchComponent.propTypes = {
+  onValueChange: PropTypes.func.isRequired,
+}
 
 export default SwitchComponent;

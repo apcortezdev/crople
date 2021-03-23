@@ -12,9 +12,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSettingsUserEmail } from '../store/temps.actions';
 import { useTheme } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { PropTypes } from 'prop-types';
 
 const Login = (props) => {
-  const { colors, fonts } = useTheme();
+  const { colors } = useTheme();
   const dispatch = useDispatch();
 
   const [userEmail, setUserEmail] = useState(
@@ -284,5 +285,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
+Login.propTypes = {
+  onForgotPassword: PropTypes.func.isRequired,
+  onLogIn: PropTypes.func.isRequired,
+  onSignUp: PropTypes.func.isRequired,
+  onGoBack: PropTypes.func.isRequired,
+};
 
 export default Login;

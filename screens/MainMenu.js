@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Title } from 'react-native-paper';
 import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const AuthScreen = (props) => {
   const { colors, fonts } = useTheme();
@@ -72,7 +73,7 @@ const AuthScreen = (props) => {
 
   useEffect(() => {
     openAnimation.start();
-  }, []);
+  }, [openAnimation]);
 
   return (
     <View style={styles.screen}>
@@ -131,5 +132,11 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   }),
 });
+
+AuthScreen.propTypes = {
+  onPlay: PropTypes.func.isRequired,
+  onRanking: PropTypes.func.isRequired,
+  onOptions: PropTypes.func.isRequired,
+};
 
 export default AuthScreen;

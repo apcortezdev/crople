@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const RankComponent = (props) => {
   const { colors, fonts } = useTheme();
@@ -10,7 +11,7 @@ const RankComponent = (props) => {
   let score = null;
   let image = null;
 
-  if (!!props.player) {
+  if (props.player) {
     userName = props.player[Object.keys(props.player)[0]].userName;
     score = props.player[Object.keys(props.player)[0]].highestScore;
     image = props.player[Object.keys(props.player)[0]].userImage;
@@ -39,7 +40,7 @@ const RankComponent = (props) => {
       break;
     default:
       trophy = 'md-trophy-outline';
-      trophyColor = colors.trophyColors.outlined;;
+      trophyColor = colors.trophyColors.outlined;
       props.isHeader
         ? (bgColor = 'transparent')
         : props.isStandOut
@@ -55,7 +56,7 @@ const RankComponent = (props) => {
         ) : (
           <View style={styles.userSnap}>
             <View style={styles.avatarContainer}>
-              {!!image ? (
+              {image ? (
                 <Avatar.Image
                   size={35}
                   source={{ uri: 'data:image/jpg;base64,' + image }}
@@ -124,5 +125,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
   }),
 });
+
+RankComponent.propTypes = {
+  player: PropTypes.object.isRequired,
+  position: PropTypes.number.isRequired,
+  isHeader: PropTypes.bool.isRequired,
+  isStandOut: PropTypes.bool.isRequired,
+}
 
 export default RankComponent;

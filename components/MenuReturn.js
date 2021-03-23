@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { PropTypes } from 'prop-types';
 
 const MenuReturn = (props) => {
   return (
@@ -35,5 +36,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+MenuReturn.propTypes = {
+  onPressBack: PropTypes.func.isRequired,
+};
 
 export default MenuReturn;

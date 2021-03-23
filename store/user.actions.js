@@ -409,10 +409,10 @@ export const saveImageToFileSystem = (userName, userImage) => {
   };
 };
 
-export const deleteImageFromFileSystem = (path = null) => {
+export const deleteImageFromFileSystem = (file = null) => {
   return async (_, getState) => {
-    const path = path ? path : getState().user.userImage;
-    if (!!path) {
+    const path = file ? file : getState().user.userImage;
+    if (path) {
       try {
         await FileSystem.deleteAsync(path, {
           idempotent: true,
@@ -720,7 +720,7 @@ export const runTest = () => {
     const refresh = async () => {
       // >REFRESH TOKEN
       console.log('REFRESH');
-      endpointUrl = config.API_REFRESH_TOKEN.concat(config.API_KEY);
+      let endpointUrl = config.API_REFRESH_TOKEN.concat(config.API_KEY);
       const body = new URLSearchParams();
       body.append('grant_type', 'refresh_token');
       body.append('refresh_token', dataLogin.refreshToken);

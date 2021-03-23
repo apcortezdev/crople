@@ -1,7 +1,8 @@
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const MenuBase = (props) => {
   const { colors } = useTheme();
@@ -22,5 +23,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 });
+
+MenuBase.propTypes = {
+  onPressMenu: PropTypes.func.isRequired,
+}
 
 export default MenuBase;

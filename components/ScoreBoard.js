@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@react-navigation/native';
 
-const Points = (props) => {
+const Points = () => {
   const { colors, fonts } = useTheme();
 
   const score = useSelector((state) => state.game.points);
