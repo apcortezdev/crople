@@ -1,11 +1,10 @@
-import { useTheme } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { resetPassword } from '../store/auth.actions';
@@ -18,12 +17,11 @@ import {
   validateIsEmail,
   validateNameSize,
   validateNameSlur,
-  validatePasswordSize
+  validatePasswordSize,
 } from './Validations';
+import { PropTypes } from 'prop-types';
 
 const AuthScreen = (props) => {
-  const { colors, fonts } = useTheme();
-
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
   const [image, setImage] = useState(null);
@@ -75,7 +73,7 @@ const AuthScreen = (props) => {
   };
 
   const resetThePassword = async (userEmail) => {
-    if (!!!userEmail) {
+    if (!userEmail) {
       Alert.alert('Reset Password', 'Please enter a valid email', [
         { text: 'Ok' },
       ]);
@@ -272,5 +270,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+AuthScreen.propTypes = {
+  onSignUp: PropTypes.func.isRequired,
+  onLogin: PropTypes.func.isRequired,
+  onGoBack: PropTypes.func.isRequired,
+};
 
 export default AuthScreen;

@@ -1,24 +1,14 @@
 import config from '../config';
 import { SET_RANKS } from './actionConstants';
-import { refreshAndSaveToken } from './auth.actions';
 
 export const fetchRanks = () => {
   // FETCH USER DETAILS FOR RANKING
   return async (dispatch, getState) => {
-    // UPDATED: AUTH NOT REQUIRED FOR NOW
-    // REFRESH TOKEN IF NEEDED
-    // if (new Date(getState().auth.expirationToken) <= new Date()) {
-    //   await dispatch(refreshAndSaveToken(getState().auth.refreshToken));
-    // }
-
-    //const token = getState().auth.userToken;
-
     const body = new URLSearchParams();
     body.append('orderBy', '"highestScore"');
     body.append('limitToLast', '100');
-    //body.append('auth', token);
-    const endPointUrl = config.API_USERS.concat(body.toString());
 
+    const endPointUrl = config.API_USERS_PUBLIC.concat(body.toString());
     const response = await fetch(endPointUrl);
 
     if (!response.ok) {
@@ -26,6 +16,10 @@ export const fetchRanks = () => {
     }
 
     const rank = await response.json();
+
+    if (!rank) {
+      return [];
+    }
 
     let user = null;
     let position = 0;

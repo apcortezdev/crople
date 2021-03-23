@@ -3,6 +3,7 @@ import {
   SET_SETTINGS_NAME,
   SET_SETTINGS_EMAIL,
   SET_SETTINGS_IMAGE,
+  LOGOUT,
 } from './actionConstants';
 
 const initialState = {
@@ -22,7 +23,11 @@ export default (state = initialState, action) => {
     case CLEAR_SETTINGS:
       return initialState;
     case SET_SETTINGS_NAME:
-      if (!!action.userName || !!state.settings.userEmail || !!state.settings.userImage) {
+      if (
+        !!action.userName ||
+        !!state.settings.userEmail ||
+        !!state.settings.userImage
+      ) {
         pending = true;
       }
       newSettings = {
@@ -32,7 +37,11 @@ export default (state = initialState, action) => {
       };
       return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_EMAIL:
-      if (!!state.settings.userName || !!action.userEmail || !!state.settings.userImage) {
+      if (
+        !!state.settings.userName ||
+        !!action.userEmail ||
+        !!state.settings.userImage
+      ) {
         pending = true;
       }
       newSettings = {
@@ -40,9 +49,13 @@ export default (state = initialState, action) => {
         userEmail: action.userEmail,
         userImage: state.settings.userImage,
       };
-    return { ...state, settings: newSettings, pending: pending };
+      return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_IMAGE:
-      if (!!state.settings.userName || !!state.settings.userEmail || !!action.userImage) {
+      if (
+        !!state.settings.userName ||
+        !!state.settings.userEmail ||
+        !!action.userImage
+      ) {
         pending = true;
       }
       newSettings = {
@@ -51,6 +64,8 @@ export default (state = initialState, action) => {
         userImage: action.userImage,
       };
       return { ...state, settings: newSettings, pending: pending };
+    case LOGOUT:
+      return initialState;
     default:
       return state;
   }

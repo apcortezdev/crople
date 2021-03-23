@@ -24,8 +24,10 @@ export const signupOrLogin = (
     let infoId;
     let highestScore = 0;
     let imageUri = null;
+    let storage = null;
 
     try {
+      const storage = await dispatch(checkStorage());
       const signUpOrInResponse = await dispatch(
         signUpOrIn(action, email, password)
       );
@@ -72,7 +74,8 @@ export const signupOrLogin = (
           email,
           userName,
           highestScore,
-          imageUri
+          imageUri,
+          storage.darkTheme
         )
       );
 
@@ -88,7 +91,8 @@ export const signupOrLogin = (
             email,
             userName,
             highestScore,
-            imageUri
+            imageUri,
+            storage.darkTheme
           )
         );
       }
@@ -159,6 +163,63 @@ export const saveUserData = (
         "There's something wrong with our servers. Please try again later =("
       );
     } else {
+      await dispatch(savePublicUserData(action, token, userId, userName));
+      const infoId = await response.json();
+      return infoId.name;
+    }
+  };
+};
+
+export const savePublicUserData = (
+  action,
+  token,
+  userId,
+  userName,
+  highestScore = null
+) => {
+  // SAVE PUBLIC USER DETAILS TO REALTIME DATABASE AFTER NEW SIGN UP
+  return async (dispatch) => {
+    let endPointUrl;
+    let body;
+    let method;
+    if (action === 'create') {
+      endPointUrl = config.API_USERS_PUBLIC.concat('auth='.concat(token));
+      method = 'POST';
+      body = JSON.stringify({
+        userId,
+        userName,
+        highestScore: 0,
+      });
+    } else if (action === 'update') {
+      endPointUrl = config.API_USERS_PUBLIC_DPI.concat(userInfoId)
+        .concat(config.API_USERS_DPA)
+        .concat(token);
+      method = 'PATCH';
+      if (highestScore) {
+        body = JSON.stringify({
+          userName,
+          highestScore,
+        });
+      } else {
+        body = JSON.stringify({
+          userName,
+        });
+      }
+    } else {
+      throw new Error('400: Wrong action');
+    }
+
+    const response = await fetch(endPointUrl, {
+      method: method,
+      header: {
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    });
+
+    if (!response.ok) {
+      throw new Error('Not able to save');
+    } else {
       const infoId = await response.json();
       return infoId.name;
     }
@@ -171,7 +232,7 @@ export const validateUserName = (userName) => {
     const body = new URLSearchParams();
     body.append('orderBy', '"userName"');
     body.append('equalTo', '"' + userName + '"');
-    const endPointUrl = config.API_USERS.concat(body.toString());
+    const endPointUrl = config.API_USERS_PUBLIC.concat(body.toString());
     const response = await fetch(endPointUrl);
 
     const data = await response.json();
@@ -189,7 +250,6 @@ export const validateUserName = (userName) => {
   };
 };
 
-// REVISED
 export const fetchUserData = (token = null, userId = null) => {
   // FETCH USER DETAILS FROM REALTIME DATABASE
   return async (_, getState) => {
@@ -284,7 +344,8 @@ export const refreshToken = ({ from, authentication }) => {
             userEmail,
             userName,
             highestScore,
-            userImage
+            userImage,
+            storage.darkTheme
           )
         );
       } catch (err) {
@@ -305,7 +366,8 @@ export const refreshToken = ({ from, authentication }) => {
             userEmail,
             userName,
             highestScore,
-            userImage
+            userImage,
+            storage.darkTheme
           )
         );
       } catch (err) {
@@ -349,13 +411,15 @@ export const saveImageToFileSystem = (userName, userImage) => {
 
 export const deleteImageFromFileSystem = (path = null) => {
   return async (_, getState) => {
-    let path = path ? path : getState().user.userImage;
-    try {
-      await FileSystem.deleteAsync(path, {
-        idempotent: true,
-      });
-    } catch (err) {
-      throw new Error(err.message);
+    const path = path ? path : getState().user.userImage;
+    if (!!path) {
+      try {
+        await FileSystem.deleteAsync(path, {
+          idempotent: true,
+        });
+      } catch (err) {
+        throw new Error(err.message);
+      }
     }
   };
 };
@@ -413,7 +477,8 @@ export const setNewRecord = (newRecord) => {
             storage.infoId,
             storage.userEmail,
             storage.userName,
-            newRecord
+            newRecord,
+            storage.darkTheme
           )
         );
       } catch (err) {
@@ -609,7 +674,8 @@ export const updateUserData = (callBackFunc) => {
             newUserEmail ? newUserEmail : getState().user.userEmail,
             newUserName ? newUserName : getState().user.userName,
             getState().user.highestScore,
-            userImage
+            userImage,
+            rememberMe.darkTheme
           )
         );
       }

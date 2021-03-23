@@ -9,7 +9,9 @@ import {
   API_USERS_DPI,
   API_USERS_DPA,
   API_DEL_ACC,
-  API_USERS_UPDT
+  API_USERS_UPDT,
+  API_USERS_PUBLIC,
+  API_USERS_PUBLIC_DPI,
 } from '@env';
 
 export default {
@@ -23,5 +25,7 @@ export default {
   API_USERS_DPI,
   API_USERS_DPA,
   API_DEL_ACC,
-  API_USERS_UPDT
+  API_USERS_UPDT,
+  API_USERS_PUBLIC,
+  API_USERS_PUBLIC_DPI,
 };

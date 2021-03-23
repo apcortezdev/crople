@@ -1,8 +1,9 @@
-import { AntDesign, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { AntDesign, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Animated,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -10,7 +11,6 @@ import {
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
   View,
-  Animated,
 } from 'react-native';
 import {
   Avatar,
@@ -18,29 +18,28 @@ import {
   Caption,
   Dialog,
   Paragraph,
-  Switch,
   TextInput,
   Title,
 } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
-import MenuReturn from '../components/MenuReturn';
 import ImagePicker from '../components/ImagePicker';
-import { resetPassword } from '../store/auth.actions';
-import { logout, updateUserData } from '../store/user.actions';
+import MenuBase from '../components/MenuBase';
+import SwitchComponent from '../components/SwitchComponent';
 import {
-  setSettingsUserName,
-  setSettingsUserEmail,
-  clearSettings,
-  setSettingsImage,
-} from '../store/temps.actions';
-import {
+  validateIsEmail,
   validateNameSize,
   validateNameSlur,
-  validateIsEmail,
 } from '../components/Validations';
-import { useTheme } from '@react-navigation/native';
-import MenuBase from '../components/MenuBase';
+import { resetPassword } from '../store/auth.actions';
 import { setTheme } from '../store/crople.actions';
+import {
+  clearSettings,
+  setSettingsImage,
+  setSettingsUserEmail,
+  setSettingsUserName,
+} from '../store/temps.actions';
+import { logout, updateUserData } from '../store/user.actions';
+import { PropTypes } from 'prop-types';
 
 const Settings = (props) => {
   const dispatch = useDispatch();
@@ -54,38 +53,46 @@ const Settings = (props) => {
   };
 
   const oldUserName = useSelector((state) => state.user.userName);
+  const tempUserName = useSelector((state) => state.temps.settings.userName)
   const [userName, setUserName] = useState(
-    useSelector((state) => state.temps.settings.userName)
-      ? useSelector((state) => state.temps.settings.userName)
-      : useSelector((state) => state.user.userName)
+    tempUserName
+      ? tempUserName
+      : oldUserName
   );
   const [hasUserNameChanged, setHasUserNameChanged] = useState(
     userName === oldUserName ? false : true
   );
 
   const oldUserEmail = useSelector((state) => state.user.userEmail);
+  const tempUserEmail = useSelector((state) => state.temps.settings.userEmail)
   const [userEmail, setUserEmail] = useState(
-    useSelector((state) => state.temps.settings.userEmail)
-      ? useSelector((state) => state.temps.settings.userEmail)
-      : useSelector((state) => state.user.userEmail)
+    tempUserEmail
+      ? tempUserEmail
+      : oldUserEmail
   );
   const [hasUserEmailChanged, setHasUserEmailChanged] = useState(
     userEmail === oldUserEmail ? false : true
   );
 
   const oldUserImage = useSelector((state) => state.user.userImage);
+  const tempImage = useSelector((state) => state.temps.settings.userImage)
   const [userImage, setUserImage] = useState(
-    useSelector((state) => state.temps.settings.userImage)
-      ? useSelector((state) => state.temps.settings.userImage.uri)
-      : useSelector((state) => state.user.userImage)
+    tempImage
+      ? tempImage.uri
+      : oldUserImage
   );
   const [hasUserImageChanged, setHasUserImageChanged] = useState(
     userImage === oldUserImage ? false : true
   );
 
-  const [isDarkThemeOn, setisDarkThemeOn] = useState(false);
-  const [isDarkThemeOff, setisDarkThemeOff] = useState(false);
-  const [isDarkThemeAuto, setisDarkThemeAuto] = useState(true);
+  const darkTheme = useSelector((state) => state.game.darkTheme)
+  const [darkMode, setDarkMode] = useState(
+    darkTheme === 'on'
+      ? 0
+      : darkTheme === 'auto'
+      ? 1
+      : 2
+  );
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
 
@@ -217,7 +224,6 @@ const Settings = (props) => {
 
   const discartAndBack = () => {
     dispatch(clearSettings());
-    props.navigation.goBack();
   };
 
   const discartChanges = () => {
@@ -227,49 +233,18 @@ const Settings = (props) => {
     ]);
   };
 
-  const setDarkOn = () => {
-    if (isDarkThemeOn) {
-      setisDarkThemeOn(false);
-      setisDarkThemeOff(false);
-      setisDarkThemeAuto(true);
-      dispatch(setTheme('auto'));
-    } else {
-      setisDarkThemeOn(true);
-      setisDarkThemeOff(false);
-      setisDarkThemeAuto(false);
-      dispatch(setTheme('on'));
-    }
-  };
-  const setDarkOff = () => {
-    if (isDarkThemeOff) {
-      setisDarkThemeOn(false);
-      setisDarkThemeOff(false);
-      setisDarkThemeAuto(true);
-      dispatch(setTheme('auto'));
-    } else {
-      setisDarkThemeOn(false);
-      setisDarkThemeOff(true);
-      setisDarkThemeAuto(false);
-      dispatch(setTheme('off'));
-    }
-  };
-  const setDarkAuto = () => {
-    if (isDarkThemeAuto) {
-      setisDarkThemeOn(true);
-      setisDarkThemeOff(false);
-      setisDarkThemeAuto(false);
-      dispatch(setTheme('on'));
-    } else {
-      setisDarkThemeOn(false);
-      setisDarkThemeOff(false);
-      setisDarkThemeAuto(true);
-      dispatch(setTheme('auto'));
+  const setDarkTheme = (value) => {
+    try {
+      dispatch(setTheme(value === 0 ? 'on' : value === 1 ? 'auto' : 'off'));
+      setDarkMode(value);
+    } catch (err) {
+      Alert.alert('Sorry', 'Something wrong is not right', { text: 'Oh No!' });
     }
   };
 
   useEffect(() => {
     openAnimation.start();
-  }, []);
+  }, [openAnimation]);
 
   return (
     <View style={styles.screen}>
@@ -300,7 +275,7 @@ const Settings = (props) => {
               <View style={styles.imageContainer}>
                 <TouchableWithoutFeedback onPress={setImage}>
                   <View>
-                    {!!!userImage ? (
+                    {!userImage ? (
                       <Avatar.Icon
                         size={80}
                         icon={() => (
@@ -372,6 +347,22 @@ const Settings = (props) => {
                 </TouchableNativeFeedback>
               </View>
             </View>
+            <View style={styles.sectionButtonSave}>
+              <View style={styles.wrapButton}>
+                <TouchableNativeFeedback onPress={discartChanges}>
+                  <View style={styles.buttonDiscart(colors)}>
+                    <Text style={styles.text}>Discart</Text>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+              <View style={styles.wrapButton}>
+                <TouchableNativeFeedback onPress={saveChanges}>
+                  <View style={styles.buttonSave(colors)}>
+                    <Text style={styles.text}>Save</Text>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+            </View>
           </ScrollView>
           <View style={styles.sectionTitleContaiter(colors)}>
             <Title style={styles.title(colors, fonts)}>Preferences</Title>
@@ -379,44 +370,10 @@ const Settings = (props) => {
           <View style={styles.mainSection}>
             <Title style={styles.titlePreference}>Dark Theme</Title>
             <View style={styles.preferencesLine}>
-              <Title style={styles.titlePreference}>On</Title>
-              <Switch
-                value={isDarkThemeOn}
-                onValueChange={setDarkOn}
-                color="#F63A65"
-              />
-            </View>
-            <View style={styles.preferencesLine}>
-              <Title style={styles.titlePreference}>Off</Title>
-              <Switch
-                value={isDarkThemeOff}
-                onValueChange={setDarkOff}
-                color="#F63A65"
-              />
-            </View>
-            <View style={styles.preferencesLine}>
-              <Title style={styles.titlePreference}>Auto</Title>
-              <Switch
-                value={isDarkThemeAuto}
-                onValueChange={setDarkAuto}
-                color="#F63A65"
-              />
-            </View>
-          </View>
-          <View style={styles.sectionButtonSave}>
-            <View style={styles.wrapButton}>
-              <TouchableNativeFeedback onPress={discartChanges}>
-                <View style={styles.buttonDiscart(colors)}>
-                  <Text style={styles.text}>Discart</Text>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-            <View style={styles.wrapButton}>
-              <TouchableNativeFeedback onPress={saveChanges}>
-                <View style={styles.buttonSave(colors)}>
-                  <Text style={styles.text}>Save</Text>
-                </View>
-              </TouchableNativeFeedback>
+              <Title style={styles.titlePreference}>
+                {darkMode === 0 ? 'On' : darkMode === 1 ? 'Auto' : 'Off'}
+              </Title>
+              <SwitchComponent value={darkMode} onValueChange={setDarkTheme} />
             </View>
           </View>
         </Animated.View>
@@ -569,5 +526,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+Settings.propTypes = {
+  onGoBack: PropTypes.func.isRequired,
+};
 
 export default Settings;

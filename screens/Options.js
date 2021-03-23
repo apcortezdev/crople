@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, View, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import Auth from '../components/Auth';
 import Settings from './Settings';
-import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 
 const Options = (props) => {
-  const { colors, fonts } = useTheme();
-  const [isLogged, setIsLogged] = useState(true);
+  const userToken = useSelector((state) => state.auth.userToken);
 
   useEffect(() => {
-    if (isLogged) {
+    if (userToken) {
       props.onSettings();
     }
-  }, []);
+  });
 
   return (
     <View style={styles.screen}>
       <View style={styles.optionsWrapper}></View>
-      {isLogged ? (
+      {userToken ? (
         <Settings onGoBack={props.onMenu} />
       ) : (
         <Auth
@@ -42,5 +42,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+Options.propTypes = {
+  onSettings: PropTypes.func.isRequired,
+  onMenu: PropTypes.func.isRequired,
+  onSignUp: PropTypes.func.isRequired,
+  onLogin: PropTypes.func.isRequired,
+};
 
 export default Options;

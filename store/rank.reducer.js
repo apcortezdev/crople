@@ -1,4 +1,4 @@
-import { SET_RANKS } from './actionConstants';
+import { LOGOUT, SET_RANKS } from './actionConstants';
 
 const initialState = {
   rank: [],
@@ -9,6 +9,8 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case SET_RANKS:
       return { ...state, rank: action.rank, position: action.position };
+    case LOGOUT:
+      return { ...state, position: initialState.position };
     default:
       return state;
   }

@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import Points from '../components/ScoreBoard';
 import Board from '../components/GameBoard';
 import MenuBase from '../components/MenuBase';
+import { PropTypes } from 'prop-types';
 
 const Crople = (props) => {
   return (
@@ -31,5 +32,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+Crople.propTypes = {
+  onMenu: PropTypes.func.isRequired,
+}
 
 export default Crople;

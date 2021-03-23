@@ -110,7 +110,7 @@ const AuthScreen = (props) => {
       duration: 50,
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
-    }),
+    })
   ]);
 
   const onSignUpAnimation = () => {
@@ -122,8 +122,8 @@ const AuthScreen = (props) => {
   };
 
   const onOptionsAnimation = () => {
-    gradientAnimationRankOpt.start()
-  }
+    gradientAnimationRankOpt.start();
+  };
 
   const goMenu = () => {
     setIsRanking(false);

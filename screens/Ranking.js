@@ -1,7 +1,13 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, StyleSheet, Text, View, Animated } from 'react-native';
-import { Caption } from 'react-native-paper';
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Animated,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import MenuBase from '../components/MenuBase';
 import RankComponent from '../components/RankComponent';
@@ -39,7 +45,7 @@ const Ranking = (props) => {
       duration: 200,
       useNativeDriver: true,
     }),
-  ])
+  ]);
 
   useEffect(() => {
     openAnimation.start();
@@ -53,7 +59,9 @@ const Ranking = (props) => {
     <View style={styles.screen}>
       <MenuBase onPressMenu={props.onMenu} />
       <View style={styles.rankingContainer}>
-        <Animated.View style={[styles.rankingPage(colors), openStylesAnimation]}>
+        <Animated.View
+          style={[styles.rankingPage(colors), openStylesAnimation]}
+        >
           <View style={styles.listTitle}>
             <Text style={styles.text(colors, fonts)}>
               This is the top {rank.length} list
@@ -96,8 +104,12 @@ const Ranking = (props) => {
               />
             ) : (
               <View style={styles.enptyList}>
-                <Caption>The internet is broken! Run to the hills!!</Caption>
-                <Caption>Or just try again later...</Caption>
+                <Text style={styles.text(colors, fonts)}>
+                  The internet is broken! Run to the hills!!
+                </Text>
+                <Text style={styles.text(colors, fonts)}>
+                  Or just try again later...
+                </Text>
               </View>
             )}
           </View>

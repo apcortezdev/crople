@@ -183,9 +183,11 @@ export const saveDataToStorage = (
           JSON.stringify({
             token: token,
             expiryDate:
-              typeof expirationDate === 'object'
+            expirationDate ? 
+              (typeof expirationDate === 'object'
                 ? expirationDate.toISOString()
-                : expirationDate,
+                : expirationDate) :
+                null,
             refreshToken: refreshToken,
             userId: userId,
             infoId: infoId,
