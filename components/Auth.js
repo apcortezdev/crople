@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { resetPassword } from '../store/auth.actions';
-import { clearSettings } from '../store/temps.actions';
 import { signupOrLogin, validateUserName } from '../store/user.actions';
 import ImagePicker from './ImagePicker';
 import Login from './Login';
@@ -20,8 +19,10 @@ import {
   validatePasswordSize,
 } from './Validations';
 import { PropTypes } from 'prop-types';
+import { useTheme } from '@react-navigation/native';
 
 const AuthScreen = (props) => {
+  const { colors } = useTheme();
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLogIn, setIsLogIn] = useState(true);
   const [image, setImage] = useState(null);
@@ -53,15 +54,11 @@ const AuthScreen = (props) => {
         setIsLoadingLogin(false);
         return;
       }
-      const action = signupOrLogin('login', userEmail, password, rememberMe);
-      await dispatch(action).then(
-        () => {
-          dispatch(clearSettings());
-        },
-        (err) => {
-          Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
-        }
-      );
+      await dispatch(
+        signupOrLogin('login', userEmail, password, rememberMe)
+      ).catch((err) => {
+        Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
+      });
       setIsLoadingLogin(false);
     } else {
       Alert.alert(
@@ -140,27 +137,25 @@ const AuthScreen = (props) => {
         );
         return;
       }
+
       if (termsAgreement) {
         setIsLoadingSignUp(true);
         dispatch(validateUserName(userName)).then(
           (isValid) => {
             if (isValid) {
-              const action = signupOrLogin(
-                'signup',
-                email,
-                password,
-                rememberMe,
-                userName,
-                image
-              );
-              dispatch(action).then(
-                () => {
-                  dispatch(clearSettings());
-                },
-                (err) => {
-                  Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
-                }
-              );
+              dispatch(
+                signupOrLogin(
+                  'signup',
+                  email,
+                  password,
+                  rememberMe,
+                  userName,
+                  image
+                )
+              ).catch((err) => {
+                setIsLoadingSignUp(false);
+                Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
+              });
             } else {
               Alert.alert(
                 'Name',
@@ -168,17 +163,13 @@ const AuthScreen = (props) => {
                 [{ text: 'Okay' }]
               );
             }
+            setIsLoadingSignUp(false);
           },
-          () => {
-            Alert.alert(
-              'Name',
-              "There's something wrong with our servers. Please try again later =(",
-              [{ text: 'Okay' }]
-            );
+          (err) => {
+            setIsLoadingSignUp(false);
+            Alert.alert('Ops..', err.message, [{ text: 'Okay' }]);
           }
         );
-
-        setIsLoadingSignUp(false);
       } else {
         Alert.alert(
           'Terms & Privacy Policy',
@@ -215,7 +206,7 @@ const AuthScreen = (props) => {
         <>
           {isLoadingSignUp ? (
             <View style={styles.activityIndicator}>
-              <ActivityIndicator size="large" color="#F63A65" />
+              <ActivityIndicator size="large" color={colors.primary} />
             </View>
           ) : (
             <SignUp

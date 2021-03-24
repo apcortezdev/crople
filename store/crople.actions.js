@@ -1,7 +1,6 @@
 import { ADD_POINT, SET_POINTS, SET_THEME } from './actionConstants';
 import { checkStorage, authenticate, saveDataToStorage } from './auth.actions';
 import { fetchRanks } from './rank.actions';
-import { logout } from './user.actions';
 
 export const addPoints = () => {
   return { type: ADD_POINT };
@@ -17,15 +16,16 @@ export const setTheme = (theme) => {
       const storage = await dispatch(checkStorage());
       await dispatch(
         saveDataToStorage(
-          storage.userId,
+          storage.authId,
           storage.token,
           storage.refreshToken,
           storage.expiresIn,
-          storage.infoId,
-          storage.userEmail,
-          storage.userName,
+          storage.privateId,
+          storage.publicId,
+          storage.email,
+          storage.name,
           storage.highestScore,
-          storage.userImage,
+          storage.image,
           theme
         )
       );
@@ -53,15 +53,16 @@ export const startAsync = () => {
       try {
         await dispatch(
           authenticate(
-            storage.userId,
+            storage.authId,
             storage.token,
             storage.refreshToken,
             expirationDate,
-            storage.infoId,
-            storage.userEmail,
-            storage.userName,
+            storage.privateId,
+            storage.publicId,
+            storage.email,
+            storage.name,
             storage.highestScore,
-            storage.userImage,
+            storage.image,
             storage.darkTheme
           )
         );
@@ -81,15 +82,12 @@ export const startAsync = () => {
             null,
             null,
             null,
+            null,
             0,
             null,
             'auto'
           )
         );
-      } catch (err) {
-        throw new Error(err);
-      }
-      try {
         dispatch(
           saveDataToStorage(
             null,
@@ -99,11 +97,13 @@ export const startAsync = () => {
             null,
             null,
             null,
+            null,
             0,
             null,
             'auto'
           )
         );
+        dispatch(fetchRanks());
       } catch (err) {
         throw new Error(err);
       }

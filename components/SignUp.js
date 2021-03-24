@@ -23,10 +23,10 @@ const SignUp = (props) => {
   const { colors } = useTheme();
 
   const [userName, setUserName] = useState(
-    useSelector((state) => state.temps.settings.userName)
+    useSelector((state) => state.temps.settings.name)
   );
   const [userEmail, setUserEmail] = useState(
-    useSelector((state) => state.temps.settings.userEmail)
+    useSelector((state) => state.temps.settings.email)
   );
   const [password, setPassword] = useState('');
   const [termsAgreement, setTermsAgreement] = useState(false);
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
 
 SignUp.propTypes = {
   onSetImage: PropTypes.func.isRequired,
-  image: PropTypes.object.isRequired,
+  image: PropTypes.object,
   onSignUpWithEmail: PropTypes.func.isRequired,
   onPressBack: PropTypes.func.isRequired,
 }

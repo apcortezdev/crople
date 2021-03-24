@@ -21,14 +21,10 @@ export const fetchRanks = () => {
       return [];
     }
 
-    let user = null;
     let position = 0;
 
     // SPREADS JSON OBJS INTO ARRAY
     const rankArray = Object.keys(rank).map((key) => {
-      if (key === getState().user.infoId) {
-        user = { [key]: rank[key] };
-      }
       return { [key]: rank[key] };
     });
 
@@ -47,7 +43,7 @@ export const fetchRanks = () => {
     });
 
     position = sortedRank.findIndex((player) => {
-      return Object.keys(player)[0] === getState().user.infoId;
+      return player[Object.keys(player)[0]].authId === getState().auth.authId;
     });
 
     dispatch({

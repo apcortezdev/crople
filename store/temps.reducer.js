@@ -9,9 +9,9 @@ import {
 const initialState = {
   pending: false,
   settings: {
-    userName: null,
-    userEmail: null,
-    userImage: null,
+    name: null,
+    email: null,
+    image: null,
   },
 };
 
@@ -24,44 +24,44 @@ export default (state = initialState, action) => {
       return initialState;
     case SET_SETTINGS_NAME:
       if (
-        !!action.userName ||
-        !!state.settings.userEmail ||
-        !!state.settings.userImage
+        !!action.name ||
+        !!state.settings.email ||
+        !!state.settings.image
       ) {
         pending = true;
       }
       newSettings = {
-        userName: action.userName,
-        userEmail: state.settings.userEmail,
-        userImage: state.settings.userImage,
+        name: action.name,
+        email: state.settings.email,
+        image: state.settings.image,
       };
       return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_EMAIL:
       if (
-        !!state.settings.userName ||
-        !!action.userEmail ||
-        !!state.settings.userImage
+        !!state.settings.name ||
+        !!action.email ||
+        !!state.settings.image
       ) {
         pending = true;
       }
       newSettings = {
-        userName: state.settings.userName,
-        userEmail: action.userEmail,
-        userImage: state.settings.userImage,
+        name: state.settings.name,
+        email: action.email,
+        image: state.settings.image,
       };
       return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_IMAGE:
       if (
-        !!state.settings.userName ||
-        !!state.settings.userEmail ||
-        !!action.userImage
+        !!state.settings.name ||
+        !!state.settings.email ||
+        !!action.image
       ) {
         pending = true;
       }
       newSettings = {
-        userName: state.settings.userName,
-        userEmail: state.settings.userEmail,
-        userImage: action.userImage,
+        name: state.settings.name,
+        email: state.settings.email,
+        image: action.image,
       };
       return { ...state, settings: newSettings, pending: pending };
     case LOGOUT:

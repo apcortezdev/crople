@@ -10,13 +10,13 @@ export const clearSettings = () => {
 };
 
 export const setSettingsUserName = (name) => {
-  return { type: SET_SETTINGS_NAME, userName: name };
+  return { type: SET_SETTINGS_NAME, name: name };
 };
 
 export const setSettingsUserEmail = (email) => {
-  return { type: SET_SETTINGS_EMAIL, userEmail: email };
+  return { type: SET_SETTINGS_EMAIL, email: email };
 };
 
 export const setSettingsImage = (image) => {
-  return { type: SET_SETTINGS_IMAGE, userImage: image };
+  return { type: SET_SETTINGS_IMAGE, image: image };
 };

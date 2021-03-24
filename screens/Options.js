@@ -6,10 +6,10 @@ import Settings from './Settings';
 import { PropTypes } from 'prop-types';
 
 const Options = (props) => {
-  const userToken = useSelector((state) => state.auth.userToken);
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
-    if (userToken) {
+    if (token) {
       props.onSettings();
     }
   });
@@ -17,7 +17,7 @@ const Options = (props) => {
   return (
     <View style={styles.screen}>
       <View style={styles.optionsWrapper}></View>
-      {userToken ? (
+      {token ? (
         <Settings onGoBack={props.onMenu} />
       ) : (
         <Auth

@@ -6,11 +6,12 @@ import {
 } from './actionConstants';
 
 const initialState = {
-  infoId: null,
-  userEmail: null,
-  userName: null,
+  privateId: null,
+  publicId: null,
+  email: null,
+  name: null,
   highestScore: 0,
-  userImage: null,
+  image: null,
 };
 
 export default (state = initialState, action) => {
@@ -20,23 +21,25 @@ export default (state = initialState, action) => {
     case AUTHENTICATE:
       return {
         ...state,
-        infoId: action.infoId,
-        userEmail: action.userEmail,
-        userName: action.userName,
+        privateId: action.privateId,
+        publicId: action.publicId,
+        email: action.email,
+        name: action.name,
         highestScore: action.highestScore,
-        userImage: action.userImage,
+        image: action.image,
       };
     case LOGOUT:
       return initialState;
     case REFRESH_IMAGE:
       return {
         ...state,
-        infoId: state.infoId,
-        userEmail: state.userEmail,
-        userName: state.userName,
+        privateId: state.privateId,
+        publicId: state.publicId,
+        email: state.email,
+        name: state.name,
         points: state.points,
         highestScore: state.highestScore,
-        userImage: initialState.userImage,
+        image: initialState.image,
       };
     default:
       return state;

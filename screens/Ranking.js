@@ -50,11 +50,7 @@ const Ranking = (props) => {
 
   useEffect(() => {
     openAnimation.start();
-    setIsRegreshing(true);
-    loadRanks().then(() => {
-      setIsRegreshing(false);
-    });
-  }, []);
+  }, [openAnimation]);
 
   return (
     <View style={styles.screen}>
@@ -93,12 +89,14 @@ const Ranking = (props) => {
                       position={index + 1}
                       isStandOut={true}
                       player={item}
+                      isHeader={false}
                     />
                   ) : (
                     <RankComponent
                       position={index + 1}
                       isStandOut={false}
                       player={item}
+                      isHeader={false}
                     />
                   )
                 }

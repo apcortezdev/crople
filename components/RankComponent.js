@@ -7,14 +7,14 @@ import { PropTypes } from 'prop-types';
 
 const RankComponent = (props) => {
   const { colors, fonts } = useTheme();
-  let userName = null;
+  let name = null;
   let score = null;
   let image = null;
 
   if (props.player) {
-    userName = props.player[Object.keys(props.player)[0]].userName;
+    name = props.player[Object.keys(props.player)[0]].name;
     score = props.player[Object.keys(props.player)[0]].highestScore;
-    image = props.player[Object.keys(props.player)[0]].userImage;
+    image = props.player[Object.keys(props.player)[0]].image;
   }
 
   let trophyColor;
@@ -70,7 +70,7 @@ const RankComponent = (props) => {
                 />
               )}
             </View>
-            <Text style={styles.text(colors, fonts)}>{userName}</Text>
+            <Text style={styles.text(colors, fonts)}>{name}</Text>
           </View>
         )}
       </View>
@@ -127,10 +127,10 @@ const styles = StyleSheet.create({
 });
 
 RankComponent.propTypes = {
-  player: PropTypes.object.isRequired,
-  position: PropTypes.number.isRequired,
-  isHeader: PropTypes.bool.isRequired,
-  isStandOut: PropTypes.bool.isRequired,
+  player: PropTypes.object,
+  position: PropTypes.number,
+  isHeader: PropTypes.bool,
+  isStandOut: PropTypes.bool,
 }
 
 export default RankComponent;

@@ -52,46 +52,36 @@ const Settings = (props) => {
     transform: [{ scale: scaleOpen }],
   };
 
-  const oldUserName = useSelector((state) => state.user.userName);
-  const tempUserName = useSelector((state) => state.temps.settings.userName)
+  const oldUserName = useSelector((state) => state.user.name);
+  const tempUserName = useSelector((state) => state.temps.settings.name);
   const [userName, setUserName] = useState(
-    tempUserName
-      ? tempUserName
-      : oldUserName
+    tempUserName ? tempUserName : oldUserName
   );
   const [hasUserNameChanged, setHasUserNameChanged] = useState(
     userName === oldUserName ? false : true
   );
 
-  const oldUserEmail = useSelector((state) => state.user.userEmail);
-  const tempUserEmail = useSelector((state) => state.temps.settings.userEmail)
+  const oldUserEmail = useSelector((state) => state.user.email);
+  const tempUserEmail = useSelector((state) => state.temps.settings.email);
   const [userEmail, setUserEmail] = useState(
-    tempUserEmail
-      ? tempUserEmail
-      : oldUserEmail
+    tempUserEmail ? tempUserEmail : oldUserEmail
   );
   const [hasUserEmailChanged, setHasUserEmailChanged] = useState(
     userEmail === oldUserEmail ? false : true
   );
 
-  const oldUserImage = useSelector((state) => state.user.userImage);
-  const tempImage = useSelector((state) => state.temps.settings.userImage)
+  const oldUserImage = useSelector((state) => state.user.image);
+  const tempImage = useSelector((state) => state.temps.settings.image);
   const [userImage, setUserImage] = useState(
-    tempImage
-      ? tempImage.uri
-      : oldUserImage
+    tempImage ? tempImage.uri : oldUserImage
   );
   const [hasUserImageChanged, setHasUserImageChanged] = useState(
     userImage === oldUserImage ? false : true
   );
 
-  const darkTheme = useSelector((state) => state.game.darkTheme)
+  const darkTheme = useSelector((state) => state.game.darkTheme);
   const [darkMode, setDarkMode] = useState(
-    darkTheme === 'on'
-      ? 0
-      : darkTheme === 'auto'
-      ? 1
-      : 2
+    darkTheme === 'on' ? 0 : darkTheme === 'auto' ? 1 : 2
   );
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
@@ -224,13 +214,30 @@ const Settings = (props) => {
 
   const discartAndBack = () => {
     dispatch(clearSettings());
+    props.onGoBack();
   };
 
-  const discartChanges = () => {
-    Alert.alert('Discart', 'Wish to discart all changes?', [
+  const onPressLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'No' },
-      { text: 'Yes', onPress: discartAndBack, style: 'cancel' },
+      { text: 'Yes', onPress: out },
     ]);
+  }
+
+  const out = () => {
+    dispatch(logout());
+    props.onGoBack();
+  }
+
+  const discartChanges = () => {
+    if (hasUserNameChanged || hasUserEmailChanged || hasUserImageChanged) {
+      Alert.alert('Discart', 'Wish to discart all changes?', [
+        { text: 'No' },
+        { text: 'Yes', onPress: discartAndBack, style: 'cancel' },
+      ]);
+    } else {
+      props.onGoBack();
+    }
   };
 
   const setDarkTheme = (value) => {
@@ -346,21 +353,26 @@ const Settings = (props) => {
                   </View>
                 </TouchableNativeFeedback>
               </View>
-            </View>
-            <View style={styles.sectionButtonSave}>
-              <View style={styles.wrapButton}>
-                <TouchableNativeFeedback onPress={discartChanges}>
-                  <View style={styles.buttonDiscart(colors)}>
-                    <Text style={styles.text}>Discart</Text>
-                  </View>
-                </TouchableNativeFeedback>
+              <View style={styles.sectionButtonSave}>
+                <View style={styles.wrapButton}>
+                  <TouchableNativeFeedback onPress={discartChanges}>
+                    <View style={styles.buttonDiscart(colors)}>
+                      <Text style={styles.text}>Discart</Text>
+                    </View>
+                  </TouchableNativeFeedback>
+                </View>
+                <View style={styles.wrapButton}>
+                  <TouchableNativeFeedback onPress={saveChanges}>
+                    <View style={styles.buttonSave(colors)}>
+                      <Text style={styles.text}>Save</Text>
+                    </View>
+                  </TouchableNativeFeedback>
+                </View>
               </View>
-              <View style={styles.wrapButton}>
-                <TouchableNativeFeedback onPress={saveChanges}>
-                  <View style={styles.buttonSave(colors)}>
-                    <Text style={styles.text}>Save</Text>
-                  </View>
-                </TouchableNativeFeedback>
+              <View style={styles.logoutTextView}>
+                <TouchableWithoutFeedback onPress={onPressLogout}>
+                  <Text style={styles.logoutText(colors, fonts)}>Logout!</Text>
+                </TouchableWithoutFeedback>
               </View>
             </View>
           </ScrollView>
@@ -487,7 +499,8 @@ const styles = StyleSheet.create({
   },
   mainSection: {
     width: '100%',
-    marginVertical: 25,
+    marginTop: 25,
+    marginBottom: 10,
   },
   buttonSave: (colors) => ({
     justifyContent: 'center',
@@ -525,6 +538,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  logoutTextView: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 15,
+  },
+  logoutText: (colors, fonts) => ({
+    fontFamily: fonts.regular,
+    color: colors.primary,
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  }),
 });
 
 Settings.propTypes = {

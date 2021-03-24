@@ -12,9 +12,10 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
+  let newScore;
   switch (action.type) {
     case ADD_POINT:
-      const newScore = state.points + 1;
+      newScore = state.points + 1;
       return { ...state, points: newScore };
     case SET_POINTS:
       return { ...state, points: action.points };

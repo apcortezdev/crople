@@ -19,7 +19,7 @@ const Login = (props) => {
   const dispatch = useDispatch();
 
   const [userEmail, setUserEmail] = useState(
-    useSelector((state) => state.temps.settings.userEmail)
+    useSelector((state) => state.temps.settings.email)
   );
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
@@ -67,7 +67,7 @@ const Login = (props) => {
 
   useEffect(() => {
     formAnimation.start();
-  }, []);
+  }, [formAnimation]);
 
   const formAnimation = Animated.stagger(50, [
     Animated.parallel([
