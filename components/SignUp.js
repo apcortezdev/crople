@@ -256,6 +256,7 @@ const SignUp = (props) => {
               underlineColor={colors.accent}
               autoCapitalize={'none'}
               maxLength={10}
+              theme={{colors}}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputEmailAnimation]}>
@@ -266,6 +267,7 @@ const SignUp = (props) => {
               underlineColor={colors.accent}
               keyboardType="email-address"
               autoCapitalize="none"
+              theme={{colors}}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputPasswordAnimation]}>
@@ -277,6 +279,7 @@ const SignUp = (props) => {
               secureTextEntry={isSecureEntry}
               minLenth={6}
               autoCapitalize="none"
+              theme={{colors}}
               right={
                 <TextInput.Icon
                   name={isSecureEntry ? 'eye-outline' : 'eye-off-outline'}

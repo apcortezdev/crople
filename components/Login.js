@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
@@ -133,7 +134,7 @@ const Login = (props) => {
   ]);
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView behavior={'padding'} style={styles.screen}>
       <Animated.View style={[styles.formHolder]}>
         <View style={styles.form}>
           <Animated.View style={[styles.inputHolder, inputUserEmailAnimation]}>
@@ -144,6 +145,7 @@ const Login = (props) => {
               underlineColor={colors.accent}
               keyboardType="email-address"
               autoCapitalize={'none'}
+              theme={{ colors }}
             />
           </Animated.View>
           <Animated.View style={[styles.inputHolder, inputPasswordAnimation]}>
@@ -154,6 +156,7 @@ const Login = (props) => {
               underlineColor={colors.accent}
               secureTextEntry={isSecureEntry}
               autoCapitalize={'none'}
+              theme={{ colors }}
               right={
                 <TextInput.Icon
                   name={isSecureEntry ? 'eye-outline' : 'eye-off-outline'}
@@ -222,7 +225,7 @@ const Login = (props) => {
           </Animated.View>
         </View>
       </Animated.View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -1,12 +1,15 @@
 import { Fontisto } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import { Alert, Platform, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
-import { Caption, Modal } from 'react-native-paper';
+import { Modal } from 'react-native-paper';
 import { PropTypes } from 'prop-types';
+import { useTheme } from '@react-navigation/native';
 
 const ImgPicker = (props) => {
+  const { colors, fonts } = useTheme();
+
   const getPermissionGalery = async () => {
     if (Platform.OS !== 'web') {
       const {
@@ -79,17 +82,17 @@ const ImgPicker = (props) => {
       onDismiss={props.onDismiss}
       style={styles.modal}
     >
-      <View style={styles.modalCard}>
+      <View style={styles.modalCard(colors)}>
         <TouchableWithoutFeedback onPress={setFromGalery}>
           <View style={styles.optionView}>
-            <Fontisto name="photograph" size={34} color="#F63A65" />
-            <Caption>Galery</Caption>
+            <Fontisto name="photograph" size={34} color={colors.primary} />
+            <Text style={styles.labelText(colors, fonts)}>Galery</Text>
           </View>
         </TouchableWithoutFeedback>
         <TouchableWithoutFeedback onPress={setFromCamera}>
           <View style={styles.optionView}>
-            <Fontisto name="camera" size={34} color="#F63A65" />
-            <Caption>Camera</Caption>
+            <Fontisto name="camera" size={34} color={colors.primary} />
+            <Text style={styles.labelText(colors, fonts)}>Camera</Text>
           </View>
         </TouchableWithoutFeedback>
       </View>
@@ -102,19 +105,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalCard: {
-    backgroundColor: '#FFFFFF',
+  modalCard: (colors) => ({
+    backgroundColor: colors.background,
     width: '50%',
     borderRadius: 15,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-  },
+  }),
   optionView: {
     margin: 15,
+    height: 60,
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
+  labelText: (colors, fonts) => ({
+    color: colors.text,
+    fontFamily: fonts.regular,
+    fontSize: 12,
+  }),
 });
 
 ImgPicker.propTypes = {

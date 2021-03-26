@@ -57,9 +57,9 @@ const AuthScreen = (props) => {
       await dispatch(
         signupOrLogin('login', userEmail, password, rememberMe)
       ).catch((err) => {
+        setIsLoadingLogin(false);
         Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
       });
-      setIsLoadingLogin(false);
     } else {
       Alert.alert(
         'Login',
@@ -157,13 +157,13 @@ const AuthScreen = (props) => {
                 Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
               });
             } else {
+            setIsLoadingSignUp(false);
               Alert.alert(
                 'Name',
                 'Sorry, this name is not available. Please try an other one',
                 [{ text: 'Okay' }]
               );
             }
-            setIsLoadingSignUp(false);
           },
           (err) => {
             setIsLoadingSignUp(false);

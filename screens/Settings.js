@@ -40,6 +40,7 @@ import {
 } from '../store/temps.actions';
 import { logout, updateUserData } from '../store/user.actions';
 import { PropTypes } from 'prop-types';
+import PasswordConfirm from '../components/PasswordConfirm';
 
 const Settings = (props) => {
   const dispatch = useDispatch();
@@ -85,6 +86,8 @@ const Settings = (props) => {
   );
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
+  const [passConfirmationVisible, setPassConfirmationVisible] = useState(false);
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
   const openAnimation = Animated.parallel([
     Animated.timing(scaleOpen, {
@@ -177,11 +180,11 @@ const Settings = (props) => {
   const saveChanges = () => {
     Alert.alert('Save', 'Would you like to save all changes?', [
       { text: 'No' },
-      { text: 'Yes', onPress: saveChangesToDb },
+      { text: 'Yes', onPress: validateForm },
     ]);
   };
 
-  const saveChangesToDb = async () => {
+  const validateForm = () => {
     if (hasUserNameChanged || hasUserEmailChanged || hasUserImageChanged) {
       if (!validateNameSlur(userName)) {
         Alert.alert("That's offensive...", "Sorry, you can't use this name.", [
@@ -201,9 +204,7 @@ const Settings = (props) => {
         ]);
         return;
       }
-      dispatch(updateUserData(discartAndBack)).catch((err) => {
-        Alert.alert('Ops..', err.message, [{ text: 'Ok' }]);
-      });
+      setPassConfirmationVisible(true);
     } else {
       Alert.alert('Save', "Well.. looks like there's nothing to be saved.", [
         { text: 'Ok' },
@@ -211,6 +212,15 @@ const Settings = (props) => {
     }
   };
   // <VALIDATION
+
+  const confirmAndSave = async () => {
+    setPassConfirmationVisible(false);
+    dispatch(updateUserData(passwordConfirmation)).then(() => {
+      Alert.alert('All good', 'All changes have been saved!', [{ text: 'Ok' }]);
+    }).catch((err) => {
+      Alert.alert('Ops..', err.message, [{ text: 'Ok' }]);
+    });
+  };
 
   const discartAndBack = () => {
     dispatch(clearSettings());
@@ -222,12 +232,12 @@ const Settings = (props) => {
       { text: 'No' },
       { text: 'Yes', onPress: out },
     ]);
-  }
+  };
 
   const out = () => {
     dispatch(logout());
     props.onGoBack();
-  }
+  };
 
   const discartChanges = () => {
     if (hasUserNameChanged || hasUserEmailChanged || hasUserImageChanged) {
@@ -411,6 +421,13 @@ const Settings = (props) => {
         onSetImage={setPickedImage}
         onDismiss={choseImageModal}
       />
+      <PasswordConfirm
+        value={passwordConfirmation}
+        visible={passConfirmationVisible}
+        onConfirmPassword={() => setPassConfirmationVisible(false)}
+        onDismiss={confirmAndSave}
+        onChangeText={(text) => setPasswordConfirmation(text)}
+      />
     </View>
   );
 };
@@ -455,6 +472,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   wrapButton: {
+    borderRadius: 5,
+    overflow: 'hidden',
     width: '47%',
   },
   title: (colors, fonts) => ({
@@ -507,14 +526,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.primary,
     height: 40,
-    borderRadius: 5,
   }),
   buttonDiscart: (colors) => ({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.accent,
     height: 40,
-    borderRadius: 5,
   }),
   sectionTitleContaiter: (colors) => ({
     width: '100%',
@@ -549,6 +566,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
   }),
+  keyboardAvoidingStyle: {
+    flex: 1,
+  },
 });
 
 Settings.propTypes = {

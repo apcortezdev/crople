@@ -5,8 +5,9 @@ import { AUTHENTICATE } from './actionConstants';
 
 export const refreshTokenForId = (refreshToken = null) => {
   // EXCHANGE REFRESH TOKEN FOR NEW ID TOKEN
-  return async (_, getState) => {
+  return async (dispatch, getState) => {
     const endpointUrl = config.API_REFRESH_TOKEN.concat(config.API_KEY);
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
     const body = new URLSearchParams();
     body.append('grant_type', 'refresh_token');
     body.append(
@@ -14,19 +15,14 @@ export const refreshTokenForId = (refreshToken = null) => {
       refreshToken ? refreshToken : getState().auth.refreshToken
     );
 
-    const response = await fetch(endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: body.toString(),
-    });
-
-    if (!response.ok) {
-      throw new Error();
+    try {
+      const response = await dispatch(
+        fetchFirebase(endpointUrl, 'POST', headers, body.toString())
+      );
+      return await response.json();
+    } catch (err) {
+      throw new Error(err.message);
     }
-    const data = await response.json();
-    return data;
   };
 };
 
@@ -34,13 +30,13 @@ export const resetPassword = (email) => {
   // RESET PASSWORD WITH REALTIME DATABESE IN FIREBASE
   return async (dispatch) => {
     const endPointUrl = config.API_RESET_PASS.concat(config.API_KEY);
-    const headers = {'Content-Type': 'application/json'};
+    const headers = { 'Content-Type': 'application/json' };
     const body = JSON.stringify({
       requestType: 'PASSWORD_RESET',
       email: email,
     });
     try {
-      await dispatch(fetchFirebase(endPointUrl, 'POST', headers, body))
+      await dispatch(fetchFirebase(endPointUrl, 'POST', headers, body));
     } catch (err) {
       throw new Error(err.message);
     }
@@ -63,6 +59,7 @@ export const signUpOrIn = (action, email, password) => {
     } else if (action === 'login') {
       endPointUrl = config.API_SIGNIN.concat(config.API_KEY);
     } else {
+      console.log('400: Wrong action');
       throw new Error('400: Wrong action');
     }
 
@@ -71,7 +68,7 @@ export const signUpOrIn = (action, email, password) => {
         fetchFirebase(endPointUrl, 'POST', headers, body)
       );
     } catch (err) {
-      console.log(err.message)
+      console.log(err.message);
       switch (err.message) {
         case 'EMAIL_EXISTS':
           throw new Error(
@@ -113,7 +110,6 @@ export const deleteAccount = (token = null) => {
   };
 };
 
-// REVIEWED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 export const checkStorage = () => {
   // CHECKS EXISTENCE OF DATA IN STORAGE
   return async () => {

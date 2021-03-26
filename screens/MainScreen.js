@@ -1,7 +1,13 @@
 import { useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
-import { Animated, Dimensions, StyleSheet, View, Easing } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  StyleSheet,
+  View,
+  Easing,
+} from 'react-native';
 import Crople from './Crople';
 import MainMenu from './MainMenu';
 import Ranking from './Ranking';
@@ -47,11 +53,18 @@ const AuthScreen = () => {
     Animated.timing(opacityTitle, {
       toValue: 1,
       duration: 50,
+      easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }),
   ]);
 
   const gradientAnimationPlay = Animated.parallel([
+    Animated.timing(opacityTitle, {
+      toValue: 0,
+      duration: 50,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: true,
+    }),
     Animated.timing(scaleYGradient, {
       toValue: 2,
       duration: 200,
@@ -64,14 +77,15 @@ const AuthScreen = () => {
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }),
-    Animated.timing(opacityTitle, {
-      toValue: 0,
-      duration: 50,
-      useNativeDriver: true,
-    }),
   ]);
 
   const gradientAnimationRankOpt = Animated.parallel([
+    Animated.timing(opacityTitle, {
+      toValue: 0,
+      duration: 50,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: true,
+    }),
     Animated.timing(scaleYGradient, {
       toValue: 1,
       duration: 200,
@@ -84,15 +98,15 @@ const AuthScreen = () => {
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }),
+  ]);
+
+  const gradientAnimationOptionsSignUp = Animated.parallel([
     Animated.timing(opacityTitle, {
       toValue: 0,
       duration: 50,
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }),
-  ]);
-
-  const gradientAnimationOptionsSignUp = Animated.parallel([
     Animated.timing(scaleYGradient, {
       toValue: 1,
       duration: 200,
@@ -105,12 +119,6 @@ const AuthScreen = () => {
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }),
-    Animated.timing(opacityTitle, {
-      toValue: 0,
-      duration: 50,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: true,
-    })
   ]);
 
   const onSignUpAnimation = () => {
