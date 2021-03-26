@@ -218,7 +218,7 @@ const SignUp = (props) => {
 
   useEffect(() => {
     formAnimation.start();
-  }, []);
+  }, [formAnimation]);
 
   return (
     <View style={styles.screen}>

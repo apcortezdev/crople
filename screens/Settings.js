@@ -45,6 +45,7 @@ import PasswordConfirm from '../components/PasswordConfirm';
 const Settings = (props) => {
   const dispatch = useDispatch();
   const { colors, fonts } = useTheme();
+  const pending = useSelector((state) => state.temps.pending);
 
   const opacityOpen = useRef(new Animated.Value(0)).current;
   const scaleOpen = useRef(new Animated.Value(0.9)).current;
@@ -89,6 +90,15 @@ const Settings = (props) => {
   const [passConfirmationVisible, setPassConfirmationVisible] = useState(false);
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
+  useEffect(() => {
+    openAnimation.start();
+    if (!pending) {
+      setHasUserEmailChanged(false);
+      setHasUserImageChanged(false);
+      setHasUserNameChanged(false);
+    }
+  }, [openAnimation, pending]);
+
   const openAnimation = Animated.parallel([
     Animated.timing(scaleOpen, {
       toValue: 1,
@@ -129,7 +139,7 @@ const Settings = (props) => {
   const changePassword = () => {
     dispatch(resetPassword(userEmail)).then(
       () => {
-        dispatch(logout());
+        out();
       },
       () => {
         Alert.alert('Sorry', 'We had a problem. Please try again later!', [
@@ -214,12 +224,32 @@ const Settings = (props) => {
   // <VALIDATION
 
   const confirmAndSave = async () => {
-    setPassConfirmationVisible(false);
-    dispatch(updateUserData(passwordConfirmation)).then(() => {
-      Alert.alert('All good', 'All changes have been saved!', [{ text: 'Ok' }]);
-    }).catch((err) => {
-      Alert.alert('Ops..', err.message, [{ text: 'Ok' }]);
-    });
+    dispatch(updateUserData(passwordConfirmation))
+      .then(() => {
+        setPassConfirmationVisible(false);
+        Alert.alert('All good', 'All changes have been saved!', [
+          { text: 'Ok', onPress: discartAndBack },
+        ]);
+      })
+      .catch((err) => {
+        setPassConfirmationVisible(false);
+        if (err.message === 'The e-mail or password is invalid') {
+          Alert.alert('Ops..', 'The password is invalid', [{ text: 'Ok' }]);
+        } else if (err.message.includes('TOO_MANY_ATTEMPTS')) {
+          Alert.alert(
+            'Ops..',
+            'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later',
+            [{ text: 'Ok' }]
+          );
+        } else {
+          console.log(err);
+          Alert.alert(
+            'Ops..',
+            'Something wrong is not right! Please try again later.',
+            [{ text: 'Ok' }]
+          );
+        }
+      });
   };
 
   const discartAndBack = () => {
@@ -259,10 +289,6 @@ const Settings = (props) => {
     }
   };
 
-  useEffect(() => {
-    openAnimation.start();
-  }, [openAnimation]);
-
   return (
     <View style={styles.screen}>
       <MenuBase onPressMenu={props.onGoBack} />
@@ -272,9 +298,7 @@ const Settings = (props) => {
         >
           <View style={styles.sectionTitleContaiter(colors)}>
             <Title style={styles.title(colors, fonts)}>Profile</Title>
-            {(hasUserNameChanged ||
-              hasUserEmailChanged ||
-              hasUserImageChanged) && (
+            {(pending) && (
               <View style={styles.changeMessageContainer}>
                 <FontAwesome5
                   name="exclamation-circle"
@@ -424,8 +448,8 @@ const Settings = (props) => {
       <PasswordConfirm
         value={passwordConfirmation}
         visible={passConfirmationVisible}
-        onConfirmPassword={() => setPassConfirmationVisible(false)}
-        onDismiss={confirmAndSave}
+        onConfirm={confirmAndSave}
+        onCancel={() => setPassConfirmationVisible(false)}
         onChangeText={(text) => setPasswordConfirmation(text)}
       />
     </View>

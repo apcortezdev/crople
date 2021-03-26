@@ -12,8 +12,6 @@ import {
 } from './auth.actions';
 import { clearSettings } from './temps.actions';
 import * as FileSystem from 'expo-file-system';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
 import User from '../models/User';
 
 export const signupOrLogin = (
@@ -23,7 +21,8 @@ export const signupOrLogin = (
   password,
   rememberMe,
   name = null,
-  image = null
+  image = null,
+  clear = true
 ) => {
   return async (dispatch) => {
     let user = new User();
@@ -90,7 +89,9 @@ export const signupOrLogin = (
           )
         );
       }
-      dispatch(clearSettings());
+      if (clear) {
+        await dispatch(clearSettings());
+      }
     } catch (err) {
       console.log(err.message);
       throw new Error(err.message);
@@ -105,8 +106,8 @@ export const saveUserData = (action, token, user) => {
     let urlPublicUser;
     let method;
     const header = { 'Content-Type': 'application/json' };
-    let privateBody;
-    let publicBody;
+    let privateBody = {};
+    let publicBody = {};
     let response;
     if (action === 'create') {
       urlPrivateUser = config.API_USERS.concat('auth='.concat(token));
@@ -214,7 +215,7 @@ export const refreshToken = () => {
       const email = getState().user.email;
       const name = getState().user.name;
       const highestScore = getState().user.highestScore;
-      const userImage = getState().user.image;
+      const image = getState().user.image;
       const darkTheme = getState().game.darkTheme;
 
       const expirationDate = new Date(
@@ -233,7 +234,7 @@ export const refreshToken = () => {
           email,
           name,
           highestScore,
-          userImage,
+          image,
           darkTheme
         )
       );
@@ -251,7 +252,7 @@ export const refreshToken = () => {
             email,
             name,
             highestScore,
-            userImage,
+            image,
             darkTheme
           )
         );
@@ -262,30 +263,32 @@ export const refreshToken = () => {
   };
 };
 
-export const saveImageToFileSystem = (userName, userImage) => {
+export const saveImageToFileSystem = (userName, image) => {
   // SAVE USER PICTURE TO FILE WHEN LOGIN OR SIGNUP OR UPDATE
   return async () => {
     let path;
 
-    if (!userImage.uri) {
+    if (!image.uri) {
       // IMAGE DOWNLOADED, MUST CONVERT TO FILE
       path = FileSystem.documentDirectory + userName.toString() + '.jpg';
       try {
-        await FileSystem.writeAsStringAsync(path, userImage.base64, {
+        await FileSystem.writeAsStringAsync(path, image.base64, {
           encoding: FileSystem.EncodingType.Base64,
         });
       } catch (err) {
+        console.log(err);
         throw new Error(err.message);
       }
     } else {
-      path = FileSystem.documentDirectory + userImage.uri.split('/').pop();
+      path = FileSystem.documentDirectory + image.uri.split('/').pop();
       try {
         await FileSystem.moveAsync({
           //saves file from temp folder to filesystem
-          from: userImage.uri,
+          from: image.uri,
           to: path,
         });
       } catch (err) {
+        console.log(err);
         throw new Error(err.message);
       }
     }
@@ -295,13 +298,14 @@ export const saveImageToFileSystem = (userName, userImage) => {
 
 export const deleteImageFromFileSystem = (file = null) => {
   return async (_, getState) => {
-    const path = file ? file : getState().user.userImage;
+    const path = file ? file : getState().user.image;
     if (path) {
       try {
         await FileSystem.deleteAsync(path, {
           idempotent: true,
         });
       } catch (err) {
+        console.log(err);
         throw new Error(err.message);
       }
     }
@@ -377,31 +381,32 @@ export const changeUserEmail = (newEmail) => {
     if (newEmail) {
       const endPointUrl = config.API_USERS_UPDT_EMAIL.concat(config.API_KEY);
       const headers = { 'Content-Type': 'application/json' };
-      const body = JSON.stringify({
+      const body = {
         idToken: getState().auth.token,
         email: newEmail,
         returnSecureToken: true,
-      });
+      };
 
       try {
         const response = await dispatch(
           fetchFirebase(endPointUrl, 'POST', headers, body)
         );
-        const data = await response.json();
 
         await dispatch(
           // SAVE TO REDUX
           authenticate(
-            data.localId,
-            data.idToken,
-            data.refreshToken,
-            new Date(new Date().getTime() + parseInt(data.expiresIn) * 1000),
+            response.localId,
+            response.idToken,
+            response.refreshToken,
+            new Date(
+              new Date().getTime() + parseInt(response.expiresIn) * 1000
+            ),
             getState().user.privateId,
             getState().user.publicId,
             newEmail,
             getState().user.name,
             getState().user.highestScore,
-            getState().user.userImage,
+            getState().user.image,
             getState().game.darkTheme
           )
         );
@@ -410,16 +415,18 @@ export const changeUserEmail = (newEmail) => {
         if (storage.token) {
           dispatch(
             saveDataToStorage(
-              data.localId,
-              data.idToken,
-              data.refreshToken,
-              new Date(new Date().getTime() + parseInt(data.expiresIn) * 1000),
+              response.localId,
+              response.idToken,
+              response.refreshToken,
+              new Date(
+                new Date().getTime() + parseInt(response.expiresIn) * 1000
+              ),
               getState().user.privateId,
               getState().user.publicId,
               newEmail,
               getState().user.name,
               getState().user.highestScore,
-              getState().user.userImage,
+              getState().user.image,
               getState().game.darkTheme
             )
           );
@@ -438,48 +445,72 @@ export const updateUserData = (password) => {
   return async (dispatch, getState) => {
     if (getState().temps.pending) {
       try {
+        console.log('HEY');
+
         const email = getState().user.email;
-        dispatch(signupOrLogin('login', email, password, false));
+        await dispatch(
+          signupOrLogin('login', email, password, false, null, null, false)
+        );
+
+        console.log('LOGGED');
 
         // HANDLE NEW EMAIL:
         const oldEmail = getState().user.email;
         const newEmail = getState().temps.settings.email;
         if (!!newEmail && newEmail != oldEmail) {
           await dispatch(changeUserEmail(newEmail));
+          console.log('EMAIL UPDATED');
+          console.log('NEW EMAIL: ' + newEmail);
         }
 
         // HANDLE NEW NAME AND IMAGE
-        const oldName = getState().user.userName;
+        const oldName = getState().user.name;
         const newName = getState().temps.settings.name;
 
-        const oldImage = getState().user.userImage;
+        const oldImage = getState().user.image;
         const newImage = getState().temps.settings.image;
-        let newImgPath;
+
+        let newImgPath = null;
+        let image = null;
         if (!!newImage && newImage.uri != oldImage) {
           await dispatch(deleteImageFromFileSystem());
-          newImgPath = await dispatch(saveImageToFileSystem(newImage.uri));
-          dispatch({ type: REFRESH_IMAGE });
+          newImgPath = await dispatch(
+            saveImageToFileSystem(newName ? newName : oldName, newImage)
+          );
+          await dispatch({ type: REFRESH_IMAGE });
+          console.log('IMAGE SAVED');
+          console.log('NEW IMAGE: ' + newImgPath);
         }
 
         const authId = getState().auth.authId;
         const token = getState().auth.token;
 
+        if (newImgPath) {
+          image = {
+            uri: newImgPath,
+            base64: newImage.base64,
+          };
+        }
+
         const user = new User(
           authId,
           getState().user.privateId,
           getState().user.publicId,
-          !!newName && newName != oldName,
-          !!newEmail && newEmail != oldEmail,
-          newImgPath ? newImgPath : null,
+          newName ? newName : oldName,
+          newEmail ? newEmail : oldEmail,
+          image,
           null
         );
 
         await dispatch(
           // SAVE CHANGES TO FIREBASE
-          saveUserData('update', token, user, authId)
+          saveUserData('update', token, user)
         );
 
-        dispatch(
+        console.log('FIREBASE UPDATED');
+        console.log('NEW NAME: ' + newName);
+
+        await dispatch(
           // SAVE CHANGES TO REDUX
           authenticate(
             authId,
@@ -488,18 +519,20 @@ export const updateUserData = (password) => {
             getState().auth.expirationToken,
             getState().user.privateId,
             getState().user.publicId,
-            !!newEmail && newEmail != oldEmail,
-            !!newName && newName != oldName,
+            newEmail ? newEmail : oldEmail,
+            newName ? newName : oldName,
             getState().user.highestScore,
-            newImgPath ? newImgPath : getState().user.userImage,
+            newImgPath ? newImgPath : oldImage,
             getState().game.darkTheme
           )
         );
 
+        console.log('AUTHENTICATED');
+
         const storage = await dispatch(checkStorage());
         if (storage.token) {
           // IF REMEMBER ME
-          dispatch(
+          await dispatch(
             saveDataToStorage(
               authId,
               token,
@@ -507,16 +540,18 @@ export const updateUserData = (password) => {
               getState().auth.expirationToken,
               getState().user.privateId,
               getState().user.publicId,
-              !!newEmail && newEmail != oldEmail,
-              !!newName && newName != oldName,
+              newEmail ? newEmail : oldEmail,
+              newName ? newName : oldName,
               getState().user.highestScore,
-              newImgPath ? newImgPath : getState().user.userImage,
+              newImgPath ? newImgPath : oldImage,
               getState().game.darkTheme
             )
           );
         }
+        console.log('SAVED TO STORAGE');
+        dispatch(clearSettings());
       } catch (err) {
-        console.log(err.messaage);
+        console.log(err);
         throw new Error(err.message);
       }
     }
@@ -526,36 +561,28 @@ export const updateUserData = (password) => {
 export const logout = () => {
   return async (dispatch) => {
     // CLEAR REDUX AND DEVICE STORAGE
-    if (SecureStore.isAvailableAsync()) {
-      SecureStore.deleteItemAsync(config.STORAGE);
-    } else {
-      AsyncStorage.removeItem(config.STORAGE);
+    try {
+      await dispatch(
+        saveDataToStorage(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          null,
+          'auto'
+        )
+      );
+      await dispatch(deleteImageFromFileSystem());
+      dispatch({ type: LOGOUT });
+    } catch (err) {
+      throw new Error(err);
     }
-    await dispatch(deleteImageFromFileSystem());
-    dispatch({ type: LOGOUT });
   };
-  // try {
-  //   await dispatch(
-  //     saveDataToStorage(
-  //       null,
-  //       null,
-  //       null,
-  //       null,
-  //       null,
-  //       null,
-  //       null,
-  //       null,
-  //       0,
-  //       null,
-  //       'auto'
-  //     )
-  //   );
-  //   await dispatch(deleteImageFromFileSystem());
-  //   dispatch({ type: LOGOUT });
-  // } catch (err) {
-  //   throw new Error(err);
-  // }
-  // };
 };
 
 export const deleteUserAccount = (token = null) => {

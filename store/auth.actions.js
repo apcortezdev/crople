@@ -31,10 +31,10 @@ export const resetPassword = (email) => {
   return async (dispatch) => {
     const endPointUrl = config.API_RESET_PASS.concat(config.API_KEY);
     const headers = { 'Content-Type': 'application/json' };
-    const body = JSON.stringify({
+    const body = {
       requestType: 'PASSWORD_RESET',
       email: email,
-    });
+    }
     try {
       await dispatch(fetchFirebase(endPointUrl, 'POST', headers, body));
     } catch (err) {

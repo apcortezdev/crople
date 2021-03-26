@@ -9,6 +9,7 @@ npm-debug.*
 *.orig.*
 .env
 web-build/
+psd_files
 
 # macOS
 .DS_Store

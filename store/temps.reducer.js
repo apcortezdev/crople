@@ -23,11 +23,7 @@ export default (state = initialState, action) => {
     case CLEAR_SETTINGS:
       return initialState;
     case SET_SETTINGS_NAME:
-      if (
-        !!action.name ||
-        !!state.settings.email ||
-        !!state.settings.image
-      ) {
+      if (action.name) {
         pending = true;
       }
       newSettings = {
@@ -37,11 +33,7 @@ export default (state = initialState, action) => {
       };
       return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_EMAIL:
-      if (
-        !!state.settings.name ||
-        !!action.email ||
-        !!state.settings.image
-      ) {
+      if (!!state.settings.name || !!action.email || !!state.settings.image) {
         pending = true;
       }
       newSettings = {
@@ -51,19 +43,15 @@ export default (state = initialState, action) => {
       };
       return { ...state, settings: newSettings, pending: pending };
     case SET_SETTINGS_IMAGE:
-      if (
-        !!state.settings.name ||
-        !!state.settings.email ||
-        !!action.image
-      ) {
+      if (action.image) {
         pending = true;
+        newSettings = {
+          ...state.settings,
+          image: action.image,
+        };
+        return { ...state, settings: newSettings, pending: pending };
       }
-      newSettings = {
-        name: state.settings.name,
-        email: state.settings.email,
-        image: action.image,
-      };
-      return { ...state, settings: newSettings, pending: pending };
+      return initialState;
     case LOGOUT:
       return initialState;
     default:

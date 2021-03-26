@@ -18,6 +18,7 @@ const Ranking = (props) => {
   const { colors, fonts } = useTheme();
   const [isRefreshing, setIsRegreshing] = useState(false);
   const rank = useSelector((state) => state.rank.rank);
+  const token = useSelector((state) => state.auth.token);
   const position = useSelector((state) => state.rank.position);
 
   const dispatch = useDispatch();
@@ -64,7 +65,12 @@ const Ranking = (props) => {
               This is the top {rank.length} list
             </Text>
             <View>
-              {position === 0 ? (
+              {!token ? (
+                <Text style={styles.text(colors, fonts)}>
+                  Sign up and be part of it!!
+                </Text>
+              ) :
+              position === 0 ? (
                 <Text style={styles.text(colors, fonts)}>
                   But you are not on it yet!
                 </Text>
