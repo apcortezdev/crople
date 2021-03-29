@@ -5,12 +5,12 @@ This is a simple game where you have to crop a ball as many times as you can. Th
 In order to crop the ball many times you have to crop in very small pieces, and that's where the challenge is.
 
 <div>
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image01.jpeg?alt=media" height="300" />
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image02.jpeg?alt=media" height="300" />
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image03.jpeg?alt=media" height="300" />
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image04.jpeg?alt=media" height="300" />
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image05.jpeg?alt=media" height="300" />
-  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image06.jpeg?alt=media" height="300" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image01.jpeg?alt=media" height="330" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image02.jpeg?alt=media" height="330" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image03.jpeg?alt=media" height="330" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image04.jpeg?alt=media" height="330" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image05.jpeg?alt=media" height="330" />
+  <img src="https://firebasestorage.googleapis.com/v0/b/crople-b1e7a.appspot.com/o/image06.jpeg?alt=media" height="330" />
 </div>
 </n>
 
