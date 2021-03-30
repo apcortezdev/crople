@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
+  Linking,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
@@ -17,10 +18,11 @@ import {
 } from '../store/temps.actions';
 import { useTheme } from '@react-navigation/native';
 import { PropTypes } from 'prop-types';
+import config from '../config';
 
 const SignUp = (props) => {
   const dispatch = useDispatch();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const [userName, setUserName] = useState(
     useSelector((state) => state.temps.settings.name)
@@ -324,9 +326,10 @@ const SignUp = (props) => {
                 }}
               >
                 <Text style={styles.text(colors)}>
-                  I agree to the terms & privacy policy
+                  {'I agree to the '}
                 </Text>
               </TouchableWithoutFeedback>
+              <Text style={styles.hyperlinkText(colors, fonts)} onPress={() => {Linking.openURL(config.POLICY_LINK)}}>Privacy Policy</Text>
             </View>
           </Animated.View>
           <Animated.View style={[styles.inputHolder, signUpButtonAnimation]}>
@@ -352,7 +355,7 @@ const SignUp = (props) => {
             style={[styles.signUpExternal, signUpExternalAnimation]}
           >
             <Animated.View style={[styles.inputHolderButtonExternal]}>
-              <TouchableNativeFeedback onPress={() => {}}>
+              <TouchableNativeFeedback onPress={props.onSignUpWithFacebook}>
                 <View style={styles.buttonFacebook}>
                   <View style={styles.buttonIcon}>
                     <FontAwesome name="facebook-f" size={20} color="white" />
@@ -449,6 +452,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 5,
   }),
+  hyperlinkText: (colors, fonts) => ({
+    fontFamily: fonts.regular,
+    color: colors.primary,
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  }),
   buttonFacebook: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -494,6 +503,7 @@ SignUp.propTypes = {
   onSetImage: PropTypes.func.isRequired,
   image: PropTypes.object,
   onSignUpWithEmail: PropTypes.func.isRequired,
+  onSignUpWithFacebook: PropTypes.func.isRequired,
   onPressBack: PropTypes.func.isRequired,
 }
 

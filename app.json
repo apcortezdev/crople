@@ -14,16 +14,14 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-front-adapt.png",
-        "backgroundImage": "./assets/icon-back-adapt.png"
+        "foregroundImage": "./assets/icon-front-adaptative.png",
+        "backgroundImage": "./assets/icon-back-adaptative.png"
       },
       "softwareKeyboardLayoutMode": "pan"
     },

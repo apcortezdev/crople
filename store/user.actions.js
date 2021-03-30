@@ -13,6 +13,7 @@ import {
 import { clearSettings } from './temps.actions';
 import * as FileSystem from 'expo-file-system';
 import User from '../models/User';
+import * as Facebook from 'expo-facebook';
 
 export const signupOrLogin = (
   // SIGN UP OR LOGIN IN FIREBASE AUTHENTICATION WITH EMAIL AND PASSWORD
@@ -617,5 +618,63 @@ export const validateUserName = (userName) => {
       return false;
     }
     return true;
+  };
+};
+
+export const facebookLogin = () => {
+  return async (dispatch) => {
+    try {
+      await Facebook.initializeAsync({
+        appId: config.FACEBOOK_APPID,
+        appName: config.FACEBOOK_APPNAME,
+        autoLogAppEvents: false,
+      });
+
+      const facebookData = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile', 'email'],
+      });
+
+      console.log(facebookData);
+
+      if (facebookData.type === 'success') {
+        const response = await fetch(
+          config.FACEBOOK_ACCESS.concat(facebookData.token)
+        );
+        const userData = await response.json();
+        dispatch(
+          saveFacebookLogin(
+            facebookData.token,
+            facebookData.expirationDate,
+            userData
+          )
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
+  };
+};
+
+export const saveFacebookLogin = (token, expirationDate, user) => {
+  return async (dispatch) => {
+    try {
+      const endPointUrl = config.API_OAUTH.concat(config.API_KEY);
+      const headers = { 'Content-Type': 'application/json' };
+      const body = {
+        requestUri: config.FACEBOOK_ACCESS.concat(token),
+        postBody: token,
+        returnSecureToken: true,
+        returnIdpCredential: true,
+      }
+
+      const result = await dispatch(fetchFirebase(endPointUrl, 'POST', headers, body));
+      const data = await result.json();
+      console.log(data);
+      
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
+    }
   };
 };

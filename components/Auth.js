@@ -1,3 +1,5 @@
+import { useTheme } from '@react-navigation/native';
+import { PropTypes } from 'prop-types';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,7 +10,11 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { resetPassword } from '../store/auth.actions';
-import { signupOrLogin, validateUserName } from '../store/user.actions';
+import {
+  signupOrLogin,
+  validateUserName,
+  facebookLogin,
+} from '../store/user.actions';
 import ImagePicker from './ImagePicker';
 import Login from './Login';
 import SignUp from './SignUp';
@@ -18,8 +24,6 @@ import {
   validateNameSlur,
   validatePasswordSize,
 } from './Validations';
-import { PropTypes } from 'prop-types';
-import { useTheme } from '@react-navigation/native';
 
 const AuthScreen = (props) => {
   const { colors } = useTheme();
@@ -157,7 +161,7 @@ const AuthScreen = (props) => {
                 Alert.alert('Wait a sec..', err.message, [{ text: 'Ok' }]);
               });
             } else {
-            setIsLoadingSignUp(false);
+              setIsLoadingSignUp(false);
               Alert.alert(
                 'Name',
                 'Sorry, this name is not available. Please try an other one',
@@ -173,7 +177,7 @@ const AuthScreen = (props) => {
       } else {
         Alert.alert(
           'Terms & Privacy Policy',
-          'You have to agree to the terms and privacy policy',
+          'You have to agree to the privacy policy',
           [{ text: 'Okay' }]
         );
       }
@@ -181,6 +185,15 @@ const AuthScreen = (props) => {
       Alert.alert('Sign Up', 'Sorry, some information are missing.', [
         { text: 'Ok' },
       ]);
+    }
+  };
+
+  const loginWithFacebook = async () => {
+    try {
+      await dispatch(facebookLogin());
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
     }
   };
 
@@ -212,6 +225,7 @@ const AuthScreen = (props) => {
             <SignUp
               onPressBack={backToLogIn}
               onSignUpWithEmail={signUpWithEmailHandler}
+              onSignUpWithFacebook={loginWithFacebook}
               onSetImage={choseImageModal}
               image={image}
             />

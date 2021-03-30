@@ -212,7 +212,7 @@ const Login = (props) => {
               <Text style={styles.text}>New?</Text>
               <TouchableWithoutFeedback onPress={props.onSignUp}>
                 <View style={styles.signUpTextView}>
-                  <Text style={styles.signUpText}>Sign Up Now!</Text>
+                  <Text style={styles.hyperlinkText}>Sign Up Now!</Text>
                 </View>
               </TouchableWithoutFeedback>
             </View>
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
-  signUpText: {
+  hyperlinkText: {
     fontFamily: 'OpenSans',
     color: 'white',
     fontSize: 14,
